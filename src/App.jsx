@@ -173,7 +173,7 @@ function App() {
                   onClick={handleRevealAnswer}
                   className="text-xs font-medium text-neutral-400 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
                 >
-                  Give up &amp; reveal answer
+                  Reveal Answer
                 </button>
               </div>
             )}

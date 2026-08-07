@@ -70,14 +70,27 @@ const LOSS_CLOSERS = [
 ]
 
 // Shown when the player deliberately taps "Reveal Answer" instead of running
-// out of guesses — funnier and more teasing than LOSS_CLOSERS, since this
-// loss was a choice, not a defeat.
+// out of guesses. Paired with GAVE_UP_CLOSERS below (never mixed with the
+// LOSS_LEADS/LOSS_CLOSERS pools) so the whole result panel reads as one
+// consistently sarcastic/teasing tone, rather than the warmer framing used
+// for a genuine out-of-guesses loss.
+const GAVE_UP_MESSAGES = [
+  'You tapped out before the clock even ran out',
+  "Patience wasn't today's strong suit",
+  'Straight to the good part, no more guessing',
+  'You hit the panic button',
+  'Curiosity got the better of you',
+]
+
+// Funnier and more teasing than LOSS_CLOSERS, since this loss was a choice,
+// not a defeat. Doesn't restate "here's the answer" — GAVE_UP_MESSAGES above
+// already says so.
 const GAVE_UP_CLOSERS = [
   'Giving up? Bold strategy. 🏳️',
   'Well, THAT was a valiant effort. Sort of. 😅',
   'Reader, they surrendered. 📖🏳️',
   'And thus, the streak died. Dramatic music plays. 🎻',
-  "Fine, FINE. Here's the answer, you giver-upper. 😂",
+  'Fine, FINE, you giver-upper. 😂',
   'The Oracle sighs and reveals all. Try harder tomorrow, champ. 🔮',
   'Giving up was apparently an option after all. 🙃',
   'White flag officially raised. 🏳️',
@@ -118,11 +131,12 @@ export function getWinMessage(attempts, hintsUsed) {
 }
 
 // gaveUp: true when the player tapped "Reveal Answer" rather than running
-// out of guesses — picks from the funnier GAVE_UP_CLOSERS pool instead of
-// the warmer LOSS_CLOSERS one.
+// out of guesses — draws both the lead and the closer from the sarcastic
+// GAVE_UP_* pools instead of LOSS_LEADS/LOSS_CLOSERS, so the two halves of
+// the result panel never end up mismatched in tone.
 export function getLossMessage(gaveUp = false) {
   return {
-    lead: pickFrom('loss-lead', LOSS_LEADS),
+    lead: gaveUp ? pickFrom('gave-up-lead', GAVE_UP_MESSAGES) : pickFrom('loss-lead', LOSS_LEADS),
     tail: gaveUp
       ? pickFrom('gave-up-closer', GAVE_UP_CLOSERS)
       : pickFrom('loss-closer', LOSS_CLOSERS),
