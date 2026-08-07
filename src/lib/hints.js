@@ -39,11 +39,16 @@ function distinctiveWord(title) {
 // Exactly 3 hints, all player-revealed — no auto-unlock by guess count.
 // Each reads from the puzzle's `hints` jsonb, which may be incomplete for a
 // given puzzle — each falls back to a friendly "nothing extra" message.
+//
+// Ordered by difficulty, vaguest first: country+decade narrows the least,
+// the creator narrows a lot only if the player recognizes the name, and
+// exact year+genre — combined with the initials already on screen — is
+// usually enough to nail it.
 export function getHintTiers(puzzle) {
   const hints = puzzle.hints ?? {}
 
   const metaLine = [hints.year, hints.genre].filter(Boolean).join(' · ')
-  const finalLine = [hints.country, hints.decade].filter(Boolean).join(' · ')
+  const originLine = [hints.country, hints.decade].filter(Boolean).join(' · ')
 
   // seed data uses category-specific keys: "author" (book/proverb/movie
   // director), "artist" (song) — check both rather than forcing one.
@@ -54,8 +59,8 @@ export function getHintTiers(puzzle) {
   return [
     {
       order: 1,
-      label: 'Category details',
-      value: metaLine || 'No extra detail for this one — trust your instinct.',
+      label: 'Country & decade',
+      value: originLine || 'No extra detail for this one — trust your instinct.',
     },
     {
       order: 2,
@@ -66,8 +71,8 @@ export function getHintTiers(puzzle) {
     },
     {
       order: 3,
-      label: 'Final clue',
-      value: finalLine || 'Nothing left to give — you have everything you need.',
+      label: 'Category details',
+      value: metaLine || 'Nothing left to give — you have everything you need.',
     },
   ]
 }

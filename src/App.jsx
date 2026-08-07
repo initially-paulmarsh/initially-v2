@@ -86,6 +86,7 @@ function App() {
     setGameState((prev) => {
       const current = prev[activeCategory]
       if (!current) return prev
+      if (index > 0 && !current.revealedHints[index - 1]) return prev
       const revealedHints = [...current.revealedHints]
       revealedHints[index] = true
       return { ...prev, [activeCategory]: { ...current, revealedHints } }
@@ -183,15 +184,25 @@ function ResultPanel({ puzzle, game }) {
       >
         {won ? (
           <>
-            {game.resultMessage}
+            {game.resultMessage.message}
             {puzzle.fun_fact && ` ${puzzle.fun_fact}`}
           </>
         ) : (
           <>
             {game.resultMessage.lead} — the answer was {titleEl}.
-            {puzzle.fun_fact && ` ${puzzle.fun_fact}`} {game.resultMessage.tail}
+            {puzzle.fun_fact && ` ${puzzle.fun_fact}`}
           </>
         )}
+      </p>
+
+      <p
+        className={`mt-3 border-t pt-3 text-sm font-bold ${
+          won
+            ? 'border-emerald-200 text-emerald-600 dark:border-emerald-900/70 dark:text-emerald-300'
+            : 'border-rose-200 text-amber-600 dark:border-rose-900/70 dark:text-amber-400'
+        }`}
+      >
+        {won ? game.resultMessage.closer : game.resultMessage.tail}
       </p>
     </div>
   )

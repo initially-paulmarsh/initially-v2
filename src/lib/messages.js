@@ -49,6 +49,15 @@ const LOSS_MESSAGES = [
   { lead: 'Tough break today', tail: "You'll get 'em tomorrow. 🎯" },
 ]
 
+// Independent of guess/hint tier — a short celebratory closer shown as its
+// own visual block underneath the win message + fun fact.
+const WIN_CLOSERS = [
+  "Come back tomorrow to keep the streak alive. 🔥",
+  'See you tomorrow for the next one. 🎉',
+  "That's a win in the books — tomorrow brings a fresh puzzle. ⭐",
+  'Nicely played. Same time tomorrow? 🙌',
+]
+
 // Tracks the last message shown per matrix cell so the same line never
 // repeats twice in a row within that cell.
 const lastByKey = new Map()
@@ -68,7 +77,10 @@ export function getWinMessage(attempts, hintsUsed) {
   const guessTier = Math.min(Math.max(attempts, 1), 3)
   const hintTier = hintsUsed === 0 ? 'noHints' : 'withHints'
   const pool = WIN_MESSAGES[guessTier][hintTier]
-  return pickFrom(`win-${guessTier}-${hintTier}`, pool)
+  return {
+    message: pickFrom(`win-${guessTier}-${hintTier}`, pool),
+    closer: pickFrom('win-closer', WIN_CLOSERS),
+  }
 }
 
 export function getLossMessage() {
