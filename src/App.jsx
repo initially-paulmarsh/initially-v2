@@ -3,10 +3,16 @@ import CategoryTabs from './components/CategoryTabs'
 import PuzzleGrid from './components/PuzzleGrid'
 import HintPanel from './components/HintPanel'
 import GuessInput from './components/GuessInput'
+import AuthModal from './components/AuthModal'
 import { CATEGORIES, fetchTodaysPuzzles } from './lib/dailyPuzzle'
 import { isMatch } from './lib/fuzzyMatch'
 import { MAX_GUESSES } from './lib/hints'
 import { getWinMessage, getLossMessage } from './lib/messages'
+import { useSession, signOut } from './lib/auth'
+
+// Set once the sign-in prompt has auto-opened, so it interrupts at most once
+// per browser rather than re-popping after every puzzle completion.
+const AUTH_PROMPT_KEY = 'initially_auth_prompted'
 
 function makeInitialGameState(puzzles) {
   const state = {}
@@ -30,6 +36,8 @@ function App() {
   const [gameState, setGameState] = useState({})
   const [activeCategory, setActiveCategory] = useState('movie')
   const [loadError, setLoadError] = useState(null)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const session = useSession()
 
   useEffect(() => {
     fetchTodaysPuzzles()
@@ -41,6 +49,24 @@ function App() {
       })
       .catch((err) => setLoadError(err.message))
   }, [])
+
+  // Prompt for sign-in after the player's first puzzle completion (win or
+  // loss) rather than on load, so they get a taste of the game before being
+  // asked for an email — but only once per browser; a persistent header
+  // link covers everyone who dismisses or misses that first prompt.
+  useEffect(() => {
+    if (session !== null) return
+    if (localStorage.getItem(AUTH_PROMPT_KEY)) return
+    const hasCompletedAny = Object.values(gameState).some((g) => g.status !== 'playing')
+    if (hasCompletedAny) {
+      setAuthModalOpen(true)
+      localStorage.setItem(AUTH_PROMPT_KEY, '1')
+    }
+  }, [gameState, session])
+
+  useEffect(() => {
+    if (session) setAuthModalOpen(false)
+  }, [session])
 
   const statusByCategory = useMemo(() => {
     const map = {}
@@ -134,6 +160,27 @@ function App() {
         <p className="mt-1.5 text-neutral-500 dark:text-neutral-400">
           Guess the title from its initials.
         </p>
+
+        {session === null && (
+          <button
+            type="button"
+            onClick={() => setAuthModalOpen(true)}
+            className="mt-3 text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+          >
+            Sign in to save your streak
+          </button>
+        )}
+        {session && (
+          <button
+            type="button"
+            onClick={() => signOut()}
+            className="mt-3 text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+          >
+            {session.user.email} · Sign out
+          </button>
+        )}
+
+        {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
 
         <div className="mt-7">
           <CategoryTabs
