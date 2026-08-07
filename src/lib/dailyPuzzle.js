@@ -10,14 +10,16 @@ export async function fetchTodaysPuzzles() {
 
   const { data, error } = await supabase
     .from('daily_puzzles')
-    .select('category, puzzle:puzzles(*)')
+    .select('id, category, puzzle:puzzles(*)')
     .eq('puzzle_date', puzzleDate)
 
   if (error) throw error
 
   const byCategory = {}
   for (const row of data) {
-    byCategory[row.category] = row.puzzle
+    // daily_puzzle_id (not puzzle.id) is what plays.daily_puzzle_id
+    // references — carried alongside the puzzle content for stats writes.
+    byCategory[row.category] = { ...row.puzzle, daily_puzzle_id: row.id }
   }
   return byCategory
 }

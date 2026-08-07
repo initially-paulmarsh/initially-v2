@@ -4,11 +4,14 @@ import PuzzleGrid from './components/PuzzleGrid'
 import HintPanel from './components/HintPanel'
 import GuessInput from './components/GuessInput'
 import AuthModal from './components/AuthModal'
+import StatsPage from './components/StatsPage'
+import ShareButton from './components/ShareButton'
 import { CATEGORIES, fetchTodaysPuzzles } from './lib/dailyPuzzle'
 import { isMatch } from './lib/fuzzyMatch'
 import { MAX_GUESSES } from './lib/hints'
 import { getWinMessage, getLossMessage } from './lib/messages'
 import { useSession, signOut } from './lib/auth'
+import { recordCompletion, syncStatsOnSignIn } from './lib/stats'
 
 // Set once the sign-in prompt has auto-opened, so it interrupts at most once
 // per browser rather than re-popping after every puzzle completion.
@@ -25,6 +28,7 @@ function makeInitialGameState(puzzles) {
         status: 'playing',
         revealedHints: [false, false, false],
         resultMessage: null,
+        guessHistory: [],
       }
     }
   }
@@ -37,6 +41,7 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('movie')
   const [loadError, setLoadError] = useState(null)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [statsOpen, setStatsOpen] = useState(false)
   const session = useSession()
 
   useEffect(() => {
@@ -65,7 +70,10 @@ function App() {
   }, [gameState, session])
 
   useEffect(() => {
-    if (session) setAuthModalOpen(false)
+    if (session) {
+      setAuthModalOpen(false)
+      syncStatsOnSignIn(session.user.id)
+    }
   }, [session])
 
   const statusByCategory = useMemo(() => {
@@ -90,6 +98,10 @@ function App() {
     const attempts = current.attempts + 1
     const allLocked = lockedWords.every(Boolean)
     const status = allLocked ? 'won' : attempts >= MAX_GUESSES ? 'lost' : 'playing'
+    // One row per guess, true per word position once it's locked-in correct
+    // (whether solved this row or already locked from an earlier one) — the
+    // raw material for the share-result emoji grid.
+    const guessHistory = [...current.guessHistory, lockedWords.map(Boolean)]
 
     // Picked once at the moment the game resolves — not on every re-render —
     // so the message stays stable while the result panel is on screen.
@@ -100,9 +112,19 @@ function App() {
           ? getLossMessage()
           : null
 
+    if (status !== 'playing') {
+      recordCompletion({
+        category: activeCategory,
+        won: status === 'won',
+        guessesUsed: attempts,
+        dailyPuzzleId: puzzle.daily_puzzle_id,
+        userId: session?.user?.id,
+      })
+    }
+
     setGameState((prev) => ({
       ...prev,
-      [activeCategory]: { ...current, lockedWords, attempts, status, resultMessage },
+      [activeCategory]: { ...current, lockedWords, attempts, status, resultMessage, guessHistory },
     }))
 
     return !allLocked
@@ -122,14 +144,22 @@ function App() {
   // Deliberately giving up ends the puzzle as a loss, same as running out of
   // guesses — but with its own funnier closer line (see getLossMessage).
   function handleRevealAnswer() {
-    setGameState((prev) => {
-      const current = prev[activeCategory]
-      if (!current || current.status !== 'playing') return prev
-      return {
-        ...prev,
-        [activeCategory]: { ...current, status: 'lost', resultMessage: getLossMessage(true) },
-      }
+    const puzzle = puzzles[activeCategory]
+    const current = gameState[activeCategory]
+    if (!current || current.status !== 'playing') return
+
+    recordCompletion({
+      category: activeCategory,
+      won: false,
+      guessesUsed: current.attempts,
+      dailyPuzzleId: puzzle?.daily_puzzle_id,
+      userId: session?.user?.id,
     })
+
+    setGameState((prev) => ({
+      ...prev,
+      [activeCategory]: { ...current, status: 'lost', resultMessage: getLossMessage(true) },
+    }))
   }
 
   if (loadError) {
@@ -161,26 +191,36 @@ function App() {
           Guess the title from its initials.
         </p>
 
-        {session === null && (
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+          {session === null && (
+            <button
+              type="button"
+              onClick={() => setAuthModalOpen(true)}
+              className="text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+            >
+              Sign in to save your streak
+            </button>
+          )}
+          {session && (
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+            >
+              {session.user.email} · Sign out
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => setAuthModalOpen(true)}
-            className="mt-3 text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+            onClick={() => setStatsOpen(true)}
+            className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
           >
-            Sign in to save your streak
+            📊 Stats
           </button>
-        )}
-        {session && (
-          <button
-            type="button"
-            onClick={() => signOut()}
-            className="mt-3 text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
-          >
-            {session.user.email} · Sign out
-          </button>
-        )}
+        </div>
 
         {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
+        {statsOpen && <StatsPage onClose={() => setStatsOpen(false)} />}
 
         <div className="mt-7">
           <CategoryTabs
@@ -287,6 +327,8 @@ function ResultPanel({ puzzle, game }) {
       >
         {won ? game.resultMessage.closer : game.resultMessage.tail}
       </p>
+
+      <ShareButton puzzle={puzzle} game={game} />
     </div>
   )
 }
