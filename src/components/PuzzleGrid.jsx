@@ -22,7 +22,9 @@ function PuzzleGrid({ puzzle, attempts, status }) {
           ? `${remaining} guess${remaining === 1 ? '' : 'es'} left`
           : status === 'won'
             ? 'Solved!'
-            : 'Out of guesses'}
+            : remaining <= 0
+              ? 'Out of guesses'
+              : 'Answer revealed'}
       </p>
     </div>
   )

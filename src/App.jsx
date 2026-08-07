@@ -93,6 +93,19 @@ function App() {
     })
   }
 
+  // Deliberately giving up ends the puzzle as a loss, same as running out of
+  // guesses — but with its own funnier closer line (see getLossMessage).
+  function handleRevealAnswer() {
+    setGameState((prev) => {
+      const current = prev[activeCategory]
+      if (!current || current.status !== 'playing') return prev
+      return {
+        ...prev,
+        [activeCategory]: { ...current, status: 'lost', resultMessage: getLossMessage(true) },
+      }
+    })
+  }
+
   if (loadError) {
     return (
       <Centered>
@@ -152,6 +165,18 @@ function App() {
               revealedHints={activeGame.revealedHints}
               onReveal={handleRevealHint}
             />
+
+            {activeGame.status === 'playing' && (
+              <div className="mt-5 text-center">
+                <button
+                  type="button"
+                  onClick={handleRevealAnswer}
+                  className="text-xs font-medium text-neutral-400 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+                >
+                  Give up &amp; reveal answer
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <p className="mt-8 text-neutral-500 dark:text-neutral-400">
@@ -168,6 +193,7 @@ function ResultPanel({ puzzle, game }) {
   const titleEl = (
     <strong className="font-semibold text-neutral-900 dark:text-neutral-100">{puzzle.title}</strong>
   )
+  const meaning = puzzle.category === 'proverb' ? puzzle.hints?.meaning : null
 
   return (
     <div
@@ -194,6 +220,16 @@ function ResultPanel({ puzzle, game }) {
           </>
         )}
       </p>
+
+      {meaning && (
+        <p
+          className={`mt-2 text-sm leading-relaxed italic ${
+            won ? 'text-emerald-800/90 dark:text-emerald-300/90' : 'text-rose-800/90 dark:text-rose-300/90'
+          }`}
+        >
+          Meaning: {meaning}
+        </p>
+      )}
 
       <p
         className={`mt-3 border-t pt-3 text-sm font-bold ${

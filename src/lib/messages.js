@@ -28,6 +28,16 @@ const WIN_MESSAGES = {
   },
   3: {
     noHints: [
+      'Solved on guess three with zero hints used — sharp read. 🎯',
+      'Three guesses in, no hints needed — nicely worked out. 💪',
+    ],
+    withHints: [
+      'Three guesses in, hints and all — you got there. 🎉',
+      'Guess three, a hint or two along the way — nice recovery. ✨',
+    ],
+  },
+  4: {
+    noHints: [
       "Down to the last guess with zero hints — that's a nail-biter of a pure win! 😮‍💨🏆",
       'Cut it close on the final guess, but zero hints used — respect. 🎊',
     ],
@@ -38,15 +48,39 @@ const WIN_MESSAGES = {
   },
 }
 
-// Loss lines are split into a lead-in and a forward-looking close, so the
-// caller can slot "the answer was X" and the fun fact between the two and
-// still read as one flowing paragraph.
-const LOSS_MESSAGES = [
-  { lead: "So close! Today's one got away", tail: "Tomorrow's puzzle is a clean slate. 🌅" },
-  { lead: 'Not this time', tail: "But you'll be back for the next one. 💪" },
-  { lead: 'That one was a toughie', tail: 'New puzzle, new shot, tomorrow. 🔄' },
-  { lead: 'Missed it by a whisker', tail: 'Come back tomorrow for a fresh start. ✨' },
-  { lead: 'Tough break today', tail: "You'll get 'em tomorrow. 🎯" },
+// Loss copy is a lead-in plus a forward-looking close, picked independently
+// so the caller can slot "the answer was X" and the fun fact between the two
+// and still read as one flowing paragraph.
+const LOSS_LEADS = [
+  "So close! Today's one got away",
+  'Not this time',
+  'That one was a toughie',
+  'Missed it by a whisker',
+  'Tough break today',
+]
+
+// Shown when the player genuinely ran out of guesses — warmer and more
+// encouraging than the "gave up" pool below.
+const LOSS_CLOSERS = [
+  "Tomorrow's puzzle is a clean slate. 🌅",
+  "But you'll be back for the next one. 💪",
+  'New puzzle, new shot, tomorrow. 🔄',
+  'Come back tomorrow for a fresh start. ✨',
+  "You'll get 'em tomorrow. 🎯",
+]
+
+// Shown when the player deliberately taps "Reveal Answer" instead of running
+// out of guesses — funnier and more teasing than LOSS_CLOSERS, since this
+// loss was a choice, not a defeat.
+const GAVE_UP_CLOSERS = [
+  'Giving up? Bold strategy. 🏳️',
+  'Well, THAT was a valiant effort. Sort of. 😅',
+  'Reader, they surrendered. 📖🏳️',
+  'And thus, the streak died. Dramatic music plays. 🎻',
+  "Fine, FINE. Here's the answer, you giver-upper. 😂",
+  'The Oracle sighs and reveals all. Try harder tomorrow, champ. 🔮',
+  'Giving up was apparently an option after all. 🙃',
+  'White flag officially raised. 🏳️',
 ]
 
 // Independent of guess/hint tier — a short celebratory closer shown as its
@@ -74,7 +108,7 @@ function pickFrom(key, pool) {
 }
 
 export function getWinMessage(attempts, hintsUsed) {
-  const guessTier = Math.min(Math.max(attempts, 1), 3)
+  const guessTier = Math.min(Math.max(attempts, 1), 4)
   const hintTier = hintsUsed === 0 ? 'noHints' : 'withHints'
   const pool = WIN_MESSAGES[guessTier][hintTier]
   return {
@@ -83,6 +117,14 @@ export function getWinMessage(attempts, hintsUsed) {
   }
 }
 
-export function getLossMessage() {
-  return pickFrom('loss', LOSS_MESSAGES)
+// gaveUp: true when the player tapped "Reveal Answer" rather than running
+// out of guesses — picks from the funnier GAVE_UP_CLOSERS pool instead of
+// the warmer LOSS_CLOSERS one.
+export function getLossMessage(gaveUp = false) {
+  return {
+    lead: pickFrom('loss-lead', LOSS_LEADS),
+    tail: gaveUp
+      ? pickFrom('gave-up-closer', GAVE_UP_CLOSERS)
+      : pickFrom('loss-closer', LOSS_CLOSERS),
+  }
 }
