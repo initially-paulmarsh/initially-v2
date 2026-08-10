@@ -7,6 +7,7 @@ import AuthModal from './components/AuthModal'
 import StatsPage from './components/StatsPage'
 import ShareButton from './components/ShareButton'
 import LockedCategoryPanel from './components/LockedCategoryPanel'
+import Logo from './components/Logo'
 import { CATEGORIES, fetchTodaysPuzzles } from './lib/dailyPuzzle'
 import { isMatch } from './lib/fuzzyMatch'
 import { MAX_GUESSES } from './lib/hints'
@@ -193,9 +194,10 @@ function App() {
   return (
     <div className="min-h-screen bg-neutral-50 px-4 py-10 dark:bg-neutral-950">
       <div className="mx-auto flex max-w-md flex-col items-center">
-        <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
-          INITIALLY
-        </h1>
+        <div className="flex items-center gap-3">
+          <Logo className="h-11 w-11" />
+          <h1 className="text-gold dark:text-gold-light text-4xl font-extrabold tracking-tight">INITIALLY</h1>
+        </div>
         <p className="mt-1.5 text-neutral-500 dark:text-neutral-400">
           Guess the title from its initials.
         </p>
@@ -205,7 +207,7 @@ function App() {
             <button
               type="button"
               onClick={() => setAuthModalOpen(true)}
-              className="text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+              className="text-gold dark:text-gold-light text-xs font-semibold underline decoration-dotted underline-offset-4 transition-colors hover:opacity-80"
             >
               Sign in to save your streak
             </button>
@@ -242,48 +244,43 @@ function App() {
         </div>
 
         {activePuzzle && activeGame ? (
-          <div className="mt-9 w-full rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            <PuzzleGrid
-              puzzle={activePuzzle}
-              attempts={activeGame.attempts}
-              status={activeGame.status}
-              locked={!canPlay}
-            />
+          !canPlay ? (
+            <LockedCategoryPanel category={activeCategory} />
+          ) : (
+            <div className="mt-9 w-full rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+              <PuzzleGrid puzzle={activePuzzle} attempts={activeGame.attempts} status={activeGame.status} />
 
-            {!canPlay ? (
-              <LockedCategoryPanel category={activeCategory} />
-            ) : activeGame.status === 'playing' ? (
-              <GuessInput
-                key={activeCategory}
-                wordCount={activePuzzle.word_count}
-                lockedWords={activeGame.lockedWords}
-                onSubmit={handleGuess}
-                disabled={activeGame.status !== 'playing'}
-              />
-            ) : (
-              <ResultPanel puzzle={activePuzzle} game={activeGame} />
-            )}
+              {activeGame.status === 'playing' ? (
+                <GuessInput
+                  key={activeCategory}
+                  wordCount={activePuzzle.word_count}
+                  lockedWords={activeGame.lockedWords}
+                  onSubmit={handleGuess}
+                  disabled={activeGame.status !== 'playing'}
+                />
+              ) : (
+                <ResultPanel puzzle={activePuzzle} game={activeGame} />
+              )}
 
-            {canPlay && (
               <HintPanel
                 puzzle={activePuzzle}
                 revealedHints={activeGame.revealedHints}
                 onReveal={handleRevealHint}
               />
-            )}
 
-            {canPlay && activeGame.status === 'playing' && (
-              <div className="mt-5 text-center">
-                <button
-                  type="button"
-                  onClick={handleRevealAnswer}
-                  className="text-xs font-medium text-neutral-400 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
-                >
-                  Reveal Answer
-                </button>
-              </div>
-            )}
-          </div>
+              {activeGame.status === 'playing' && (
+                <div className="mt-5 text-center">
+                  <button
+                    type="button"
+                    onClick={handleRevealAnswer}
+                    className="text-xs font-medium text-neutral-400 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+                  >
+                    Reveal Answer
+                  </button>
+                </div>
+              )}
+            </div>
+          )
         ) : (
           <p className="mt-8 text-neutral-500 dark:text-neutral-400">
             No puzzle available for this category today.
@@ -341,7 +338,7 @@ function ResultPanel({ puzzle, game }) {
         className={`mt-3 border-t pt-3 text-sm font-bold ${
           won
             ? 'border-emerald-200 text-emerald-600 dark:border-emerald-900/70 dark:text-emerald-300'
-            : 'border-rose-200 text-amber-600 dark:border-rose-900/70 dark:text-amber-400'
+            : 'border-rose-200 text-rose-600 dark:border-rose-900/70 dark:text-rose-400'
         }`}
       >
         {won ? game.resultMessage.closer : game.resultMessage.tail}

@@ -96,7 +96,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
               disabled={disabled}
               placeholder={`Word ${i + 1}`}
               autoComplete="off"
-              className="h-11 w-24 rounded-lg border border-neutral-300 bg-white px-2 text-center text-sm text-neutral-900 placeholder:text-neutral-400 transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:focus:ring-white/10"
+              className="focus:border-gold h-11 w-24 rounded-lg border border-amber-200 bg-amber-50 px-2 text-center text-sm text-neutral-900 placeholder:text-neutral-400 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 disabled:opacity-50"
             />
           ),
         )}
@@ -104,7 +104,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
       <button
         type="submit"
         disabled={!canSubmit}
-        className="rounded-lg bg-neutral-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:enabled:shadow-md disabled:opacity-40 dark:bg-white dark:text-neutral-900"
+        className="bg-gold rounded-lg px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-110 disabled:opacity-40"
       >
         Guess
       </button>

@@ -24,7 +24,7 @@ function HintPanel({ puzzle, revealedHints, onReveal }) {
           >
             {revealed ? (
               <span className="animate-fade-slide-in flex flex-wrap items-baseline gap-x-2">
-                <span className="font-semibold text-amber-700 dark:text-amber-400">{tier.label}</span>
+                <span className="text-gold dark:text-gold-light font-semibold">{tier.label}</span>
                 <span>{tier.value}</span>
               </span>
             ) : (

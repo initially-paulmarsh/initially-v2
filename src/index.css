@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* The app's one signature accent -- the INITIALLY wordmark and the Guess
+   button both use this, so they read as the same brand color. Two shades
+   since a wordmark needs to flip for light/dark backgrounds, but a filled
+   button (white text on top) reads fine as the same gold in both themes. */
+@theme {
+  --color-gold: #9c6b0a;
+  --color-gold-light: #e8bf5c;
+}
+
 body {
   margin: 0;
 }

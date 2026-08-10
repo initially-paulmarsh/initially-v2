@@ -1,14 +1,9 @@
-const LABELS = {
-  movie: 'Movie',
-  proverb: 'Proverb',
-  song: 'Song',
-  book: 'Book',
-}
+import { CATEGORY_LABEL, CATEGORY_ICON } from '../lib/categoryTheme'
 
+// won/lost only -- "still playing" isn't worth a dot, nothing to report yet.
 const STATUS_DOT = {
   won: 'bg-emerald-500',
   lost: 'bg-rose-500',
-  playing: 'bg-neutral-300 dark:bg-neutral-600',
 }
 
 function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCategories }) {
@@ -25,18 +20,19 @@ function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCa
             onClick={() => onSelect(category)}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
               isActive
-                ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-white'
+                ? 'text-gold dark:text-gold-light bg-amber-100 shadow-sm dark:bg-amber-950/40'
                 : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
             } ${isLocked && !isActive ? 'opacity-60' : ''}`}
           >
+            <span aria-hidden="true">{CATEGORY_ICON[category]}</span>
+            {CATEGORY_LABEL[category]}
             {isLocked ? (
               <span aria-hidden="true" className="text-[10px] leading-none">
                 🔒
               </span>
             ) : (
-              <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[status]}`} />
+              status !== 'playing' && <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[status]}`} />
             )}
-            {LABELS[category]}
           </button>
         )
       })}

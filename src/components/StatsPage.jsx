@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { CATEGORIES } from '../lib/dailyPuzzle'
 import { getAllLocalStats } from '../lib/stats'
+import { CATEGORY_LABEL, CATEGORY_ICON } from '../lib/categoryTheme'
 import ShareStatsButton from './ShareStatsButton'
-
-const CATEGORY_LABEL = { movie: 'Movie', proverb: 'Proverb', song: 'Song', book: 'Book' }
 
 function StatsPage({ onClose }) {
   // Snapshot on open rather than a live subscription -- this modal fully
@@ -51,7 +50,9 @@ function CategoryStats({ category, stats }) {
 
   return (
     <div className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
-      <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-50">{CATEGORY_LABEL[category]}</h3>
+      <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-50">
+        {CATEGORY_ICON[category]} {CATEGORY_LABEL[category]}
+      </h3>
 
       {stats.total_played === 0 ? (
         <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">No games played yet.</p>

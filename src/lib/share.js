@@ -1,8 +1,6 @@
 import { CATEGORIES } from './dailyPuzzle'
 import { MAX_GUESSES } from './hints'
-
-const CATEGORY_EMOJI = { movie: '🎬', proverb: '📜', song: '🎵', book: '📖' }
-const CATEGORY_LABEL = { movie: 'Movie', proverb: 'Proverb', song: 'Song', book: 'Book' }
+import { CATEGORY_LABEL, CATEGORY_ICON } from './categoryTheme'
 
 // guessHistory: one row per submitted guess, each row a boolean per word
 // position (true once that position is locked-in correct, whether newly
@@ -13,7 +11,7 @@ export function buildResultShareText({ category, status, guessHistory, puzzleDat
   const scoreLine = status === 'won' ? `${guessHistory.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`
   const grid = guessHistory.map((row) => row.map((correct) => (correct ? '🟩' : '⬜')).join('')).join('\n')
 
-  return [`INITIALLY ${CATEGORY_EMOJI[category]} ${CATEGORY_LABEL[category]} — ${puzzleDate}`, scoreLine, grid].join(
+  return [`INITIALLY ${CATEGORY_ICON[category]} ${CATEGORY_LABEL[category]} — ${puzzleDate}`, scoreLine, grid].join(
     '\n',
   )
 }
@@ -30,7 +28,7 @@ export function buildStatsShareText(stats) {
     const s = stats[category]
     const winPct = Math.round((s.total_won / s.total_played) * 100)
     lines.push(
-      `${CATEGORY_EMOJI[category]} ${CATEGORY_LABEL[category]}: 🔥${s.current_streak} streak · ${winPct}% win rate (${s.total_played} played)`,
+      `${CATEGORY_ICON[category]} ${CATEGORY_LABEL[category]}: 🔥${s.current_streak} streak · ${winPct}% win rate (${s.total_played} played)`,
     )
   }
   return lines.join('\n')

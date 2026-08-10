@@ -67,7 +67,7 @@ function AuthModal({ onClose }) {
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="h-11 rounded-lg bg-neutral-900 text-sm font-semibold text-white shadow-sm transition-all hover:enabled:shadow-md disabled:opacity-40 dark:bg-white dark:text-neutral-900"
+                className="bg-gold h-11 rounded-lg text-sm font-semibold text-white shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-110 disabled:opacity-40"
               >
                 {status === 'sending' ? 'Sending…' : 'Send magic link'}
               </button>

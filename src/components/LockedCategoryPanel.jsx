@@ -1,4 +1,4 @@
-const CATEGORY_LABEL = { movie: 'Movie', proverb: 'Proverb', song: 'Song', book: 'Book' }
+import { CATEGORY_LABEL, CATEGORY_ICON } from '../lib/categoryTheme'
 
 function LockedCategoryPanel({ category }) {
   return (
@@ -7,7 +7,7 @@ function LockedCategoryPanel({ category }) {
         🔒
       </div>
       <p className="mt-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
-        Today's {CATEGORY_LABEL[category]} puzzle is subscriber-only
+        Today's {CATEGORY_ICON[category]} {CATEGORY_LABEL[category]} puzzle is subscriber-only
       </p>
       <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
         Subscriptions aren't open yet — one free category unlocks daily until they launch.
