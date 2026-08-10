@@ -30,6 +30,50 @@ function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
+function previousDateString(dateStr) {
+  const d = new Date(`${dateStr}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() - 1)
+  return d.toISOString().slice(0, 10)
+}
+
+// Marks exactly one of today's four category rows as the free-to-play one
+// (see src/lib/access.js), excluding whatever was free yesterday. Runs
+// after assignPuzzleForCategory so today's rows already exist to flip --
+// idempotent the same way puzzle assignment is: if a free category is
+// already set for this date, later hourly runs leave it alone.
+async function assignFreeCategory(supabase, puzzleDate) {
+  const { data: existing, error: existingError } = await supabase
+    .from('daily_puzzles')
+    .select('category')
+    .eq('puzzle_date', puzzleDate)
+    .eq('is_free', true)
+    .maybeSingle()
+
+  if (existingError) return { error: existingError.message }
+  if (existing) return { status: 'already assigned', category: existing.category }
+
+  const { data: yesterday, error: yesterdayError } = await supabase
+    .from('daily_puzzles')
+    .select('category')
+    .eq('puzzle_date', previousDateString(puzzleDate))
+    .eq('is_free', true)
+    .maybeSingle()
+
+  if (yesterdayError) return { error: yesterdayError.message }
+
+  const eligible = CATEGORIES.filter((c) => c !== yesterday?.category)
+  const chosen = pickRandom(eligible)
+
+  const { error: updateError } = await supabase
+    .from('daily_puzzles')
+    .update({ is_free: true })
+    .eq('puzzle_date', puzzleDate)
+    .eq('category', chosen)
+
+  if (updateError) return { error: updateError.message }
+  return { status: 'assigned', category: chosen }
+}
+
 async function assignPuzzleForCategory(supabase, category, puzzleDate) {
   const { data: existing, error: existingError } = await supabase
     .from('daily_puzzles')
@@ -93,6 +137,7 @@ export default async () => {
   for (const category of CATEGORIES) {
     results[category] = await assignPuzzleForCategory(supabase, category, puzzleDate)
   }
+  results.free_category = await assignFreeCategory(supabase, puzzleDate)
 
   return new Response(JSON.stringify({ puzzle_date: puzzleDate, results }, null, 2), {
     headers: { 'content-type': 'application/json' },

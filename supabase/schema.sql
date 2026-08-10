@@ -23,8 +23,19 @@ create table daily_puzzles (
   puzzle_date date not null, -- the UK calendar date this puzzle is live for
   category text not null check (category in ('movie', 'proverb', 'song', 'book')),
   puzzle_id uuid references puzzles(id) not null,
+  -- Freemium gate: exactly one category is playable for free each day (see
+  -- rotate-daily-puzzle.js), chosen at random excluding whatever was free
+  -- the day before. All other categories are still visible with a real
+  -- puzzle assigned -- just locked behind a subscription (src/lib/access.js).
+  is_free boolean not null default false,
   unique (puzzle_date, category)
 );
+
+-- Enforces exactly one free category per day at the DB level, as a
+-- backstop alongside rotate-daily-puzzle.js's own idempotency check.
+create unique index idx_daily_puzzles_one_free_per_date
+  on daily_puzzles (puzzle_date)
+  where is_free;
 
 -- User stats (auth required — every user is a Supabase Auth user, magic link)
 create table user_stats (

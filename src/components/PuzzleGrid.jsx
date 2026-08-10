@@ -1,6 +1,6 @@
 import { MAX_GUESSES } from '../lib/hints'
 
-function PuzzleGrid({ puzzle, attempts, status }) {
+function PuzzleGrid({ puzzle, attempts, status, locked }) {
   const initials = puzzle.initials.split(' ')
   const remaining = MAX_GUESSES - attempts
 
@@ -18,13 +18,15 @@ function PuzzleGrid({ puzzle, attempts, status }) {
       </div>
 
       <p className="mt-3 text-center text-sm font-medium text-neutral-500 dark:text-neutral-400">
-        {status === 'playing'
-          ? `${remaining} guess${remaining === 1 ? '' : 'es'} left`
-          : status === 'won'
-            ? 'Solved!'
-            : remaining <= 0
-              ? 'Out of guesses'
-              : 'Answer revealed'}
+        {locked
+          ? '🔒 Subscribers only'
+          : status === 'playing'
+            ? `${remaining} guess${remaining === 1 ? '' : 'es'} left`
+            : status === 'won'
+              ? 'Solved!'
+              : remaining <= 0
+                ? 'Out of guesses'
+                : 'Answer revealed'}
       </p>
     </div>
   )

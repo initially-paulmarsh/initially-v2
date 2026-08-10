@@ -10,7 +10,7 @@ export async function fetchTodaysPuzzles() {
 
   const { data, error } = await supabase
     .from('daily_puzzles')
-    .select('id, category, puzzle:puzzles(*)')
+    .select('id, category, is_free, puzzle:puzzles(*)')
     .eq('puzzle_date', puzzleDate)
 
   if (error) throw error
@@ -19,7 +19,8 @@ export async function fetchTodaysPuzzles() {
   for (const row of data) {
     // daily_puzzle_id (not puzzle.id) is what plays.daily_puzzle_id
     // references — carried alongside the puzzle content for stats writes.
-    byCategory[row.category] = { ...row.puzzle, daily_puzzle_id: row.id }
+    // is_free is the day's freemium gate (see lib/access.js).
+    byCategory[row.category] = { ...row.puzzle, daily_puzzle_id: row.id, is_free: row.is_free }
   }
   return byCategory
 }

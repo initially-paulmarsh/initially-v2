@@ -6,12 +6,14 @@ import GuessInput from './components/GuessInput'
 import AuthModal from './components/AuthModal'
 import StatsPage from './components/StatsPage'
 import ShareButton from './components/ShareButton'
+import LockedCategoryPanel from './components/LockedCategoryPanel'
 import { CATEGORIES, fetchTodaysPuzzles } from './lib/dailyPuzzle'
 import { isMatch } from './lib/fuzzyMatch'
 import { MAX_GUESSES } from './lib/hints'
 import { getWinMessage, getLossMessage } from './lib/messages'
 import { useSession, signOut } from './lib/auth'
 import { recordCompletion, syncStatsOnSignIn } from './lib/stats'
+import { canPlayCategory } from './lib/access'
 
 // Set once the sign-in prompt has auto-opened, so it interrupts at most once
 // per browser rather than re-popping after every puzzle completion.
@@ -90,6 +92,7 @@ function App() {
     const puzzle = puzzles[activeCategory]
     const current = gameState[activeCategory]
     if (!puzzle || !current || current.status !== 'playing') return false
+    if (!canPlayCategory({ session, puzzle })) return false
 
     const correctWords = puzzle.title.split(' ')
     const lockedWords = current.lockedWords.map((locked, i) =>
@@ -131,6 +134,7 @@ function App() {
   }
 
   function handleRevealHint(index) {
+    if (!canPlayCategory({ session, puzzle: puzzles[activeCategory] })) return
     setGameState((prev) => {
       const current = prev[activeCategory]
       if (!current) return prev
@@ -147,6 +151,7 @@ function App() {
     const puzzle = puzzles[activeCategory]
     const current = gameState[activeCategory]
     if (!current || current.status !== 'playing') return
+    if (!canPlayCategory({ session, puzzle })) return
 
     recordCompletion({
       category: activeCategory,
@@ -180,6 +185,10 @@ function App() {
 
   const activePuzzle = puzzles[activeCategory]
   const activeGame = gameState[activeCategory]
+  const canPlay = canPlayCategory({ session, puzzle: activePuzzle })
+  const lockedCategories = new Set(
+    CATEGORIES.filter((c) => puzzles[c] && !canPlayCategory({ session, puzzle: puzzles[c] })),
+  )
 
   return (
     <div className="min-h-screen bg-neutral-50 px-4 py-10 dark:bg-neutral-950">
@@ -228,14 +237,22 @@ function App() {
             active={activeCategory}
             onSelect={setActiveCategory}
             statusByCategory={statusByCategory}
+            lockedCategories={lockedCategories}
           />
         </div>
 
         {activePuzzle && activeGame ? (
           <div className="mt-9 w-full rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            <PuzzleGrid puzzle={activePuzzle} attempts={activeGame.attempts} status={activeGame.status} />
+            <PuzzleGrid
+              puzzle={activePuzzle}
+              attempts={activeGame.attempts}
+              status={activeGame.status}
+              locked={!canPlay}
+            />
 
-            {activeGame.status === 'playing' ? (
+            {!canPlay ? (
+              <LockedCategoryPanel category={activeCategory} />
+            ) : activeGame.status === 'playing' ? (
               <GuessInput
                 key={activeCategory}
                 wordCount={activePuzzle.word_count}
@@ -247,13 +264,15 @@ function App() {
               <ResultPanel puzzle={activePuzzle} game={activeGame} />
             )}
 
-            <HintPanel
-              puzzle={activePuzzle}
-              revealedHints={activeGame.revealedHints}
-              onReveal={handleRevealHint}
-            />
+            {canPlay && (
+              <HintPanel
+                puzzle={activePuzzle}
+                revealedHints={activeGame.revealedHints}
+                onReveal={handleRevealHint}
+              />
+            )}
 
-            {activeGame.status === 'playing' && (
+            {canPlay && activeGame.status === 'playing' && (
               <div className="mt-5 text-center">
                 <button
                   type="button"

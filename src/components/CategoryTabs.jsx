@@ -11,12 +11,13 @@ const STATUS_DOT = {
   playing: 'bg-neutral-300 dark:bg-neutral-600',
 }
 
-function CategoryTabs({ categories, active, onSelect, statusByCategory }) {
+function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCategories }) {
   return (
     <div className="flex gap-1 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800">
       {categories.map((category) => {
         const isActive = category === active
         const status = statusByCategory[category] ?? 'playing'
+        const isLocked = lockedCategories?.has(category)
         return (
           <button
             key={category}
@@ -26,9 +27,15 @@ function CategoryTabs({ categories, active, onSelect, statusByCategory }) {
               isActive
                 ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-white'
                 : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
-            }`}
+            } ${isLocked && !isActive ? 'opacity-60' : ''}`}
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[status]}`} />
+            {isLocked ? (
+              <span aria-hidden="true" className="text-[10px] leading-none">
+                🔒
+              </span>
+            ) : (
+              <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[status]}`} />
+            )}
             {LABELS[category]}
           </button>
         )
