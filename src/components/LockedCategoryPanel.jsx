@@ -7,18 +7,14 @@ function LockedCategoryPanel({ category }) {
         🔒
       </div>
       <p className="mt-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
-        Today's {CATEGORY_LABEL[category]} puzzle is for subscribers
+        Today's {CATEGORY_LABEL[category]} puzzle is subscriber-only
       </p>
       <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-        One free puzzle a day is on the house — subscribe to unlock all four, every day.
+        Subscriptions aren't open yet — one free category unlocks daily until they launch.
       </p>
-      <button
-        type="button"
-        disabled
-        className="mt-4 rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white opacity-50 shadow-sm dark:bg-white dark:text-neutral-900"
-      >
-        Subscribe to unlock (coming soon)
-      </button>
+      <span className="mt-4 inline-block rounded-lg bg-neutral-200 px-5 py-2.5 text-sm font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+        🔒 Available with subscription (launching soon)
+      </span>
     </div>
   )
 }
