@@ -6,13 +6,18 @@ function PuzzleGrid({ puzzle, attempts, status }) {
 
   return (
     <div className="w-full max-w-md">
-      <div className="flex flex-wrap justify-center gap-3">
+      {/* grow-0 + shrink + a basis (not a fixed width) means these compress
+          together to whatever fits in one row instead of wrapping -- a
+          title with more words just gets smaller tiles, on any screen,
+          rather than risking a fixed px size that's wrong for some device
+          or font-size setting. */}
+      <div className="flex justify-center gap-1 sm:gap-3">
         {initials.map((letter, i) => (
           <div
             key={i}
-            className="text-navy flex h-16 w-16 items-center justify-center rounded-xl border-2 border-gold/50 bg-card text-3xl font-bold shadow-sm"
+            className="text-navy aspect-square min-w-0 shrink grow-0 basis-10 overflow-hidden rounded-md border-2 border-gold/50 bg-card text-sm font-bold shadow-sm sm:basis-16 sm:rounded-xl sm:text-3xl"
           >
-            {letter}
+            <div className="flex h-full w-full items-center justify-center">{letter}</div>
           </div>
         ))}
       </div>

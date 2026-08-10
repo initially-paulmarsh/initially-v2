@@ -224,8 +224,8 @@ function App() {
 
         <div className="mt-4 flex flex-col items-center">
           <div className="flex items-center gap-3">
-            <Logo className="h-11 w-11" />
-            <h1 className="text-gold text-4xl font-extrabold tracking-tight uppercase">INITIALLY</h1>
+            <Logo className="h-16 w-16" />
+            <h1 className="text-gold text-5xl font-extrabold tracking-tight uppercase">INITIALLY</h1>
           </div>
           <p className="text-navy mt-3 text-xs font-semibold tracking-[0.2em] uppercase">
             Guess the title from its initials
@@ -249,7 +249,7 @@ function App() {
           !canPlay ? (
             <LockedCategoryPanel category={activeCategory} />
           ) : (
-            <div className="border-line bg-card mt-8 w-full rounded-2xl border p-6 shadow-sm sm:p-8">
+            <div className="border-line bg-card mt-8 w-full rounded-2xl border p-4 shadow-sm sm:p-8">
               <PuzzleGrid puzzle={activePuzzle} attempts={activeGame.attempts} status={activeGame.status} />
 
               {activeGame.status === 'playing' ? (
