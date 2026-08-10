@@ -115,12 +115,17 @@ export function getHintTiers(puzzle) {
 
   const hints = puzzle.hints ?? {}
 
-  const metaLine = [hints.year, hints.genre].filter(Boolean).join(' · ')
-  const originLine = [hints.country, hints.decade].filter(Boolean).join(' · ')
-
-  // seed data uses category-specific keys: "author" (book/movie director),
-  // "artist" (song) — check both rather than forcing one.
-  const creator = hints.author || hints.artist || hints.director
+  // Canonical keys going forward are `final_clue`, `creator`, and
+  // `category_details` (pre-formatted strings) -- but three older shapes
+  // are still live in the data and must keep resolving: ~200 song/book rows
+  // seeded before that convention only ever populated `artist`/`author`,
+  // and a single legacy movie row still uses the fully split
+  // country/decade/author/year/genre fields from the original schema
+  // comment. Every lookup below checks the canonical key first so it never
+  // orphans that older content.
+  const originLine = hints.final_clue || [hints.country, hints.decade].filter(Boolean).join(' · ')
+  const creator = hints.creator || hints.author || hints.artist || hints.director
+  const metaLine = hints.category_details || [hints.year, hints.genre].filter(Boolean).join(' · ')
 
   const needsOriginFallback = !originLine
   const needsCreatorFallback = !creator
