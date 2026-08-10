@@ -22,33 +22,33 @@ function AuthModal({ onClose }) {
 
   return (
     <div
-      className="animate-fade-slide-in fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      className="animate-fade-slide-in fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-900"
+        className="bg-card w-full max-w-sm rounded-2xl p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-50">Save your streak</h2>
+          <h2 className="text-navy text-xl font-bold">Save your streak</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-neutral-400 transition-colors hover:text-neutral-600 dark:hover:text-neutral-200"
+            className="text-navy-soft hover:text-navy min-h-9 min-w-9 text-xl transition-colors"
           >
             ✕
           </button>
         </div>
 
         {status === 'sent' ? (
-          <p className="mt-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-            Check <strong className="font-semibold text-neutral-900 dark:text-neutral-100">{email}</strong>{' '}
-            for a magic link — tap it to sign in, no password needed.
+          <p className="text-navy-soft mt-4 text-base leading-relaxed">
+            Check <strong className="text-navy font-semibold">{email}</strong> for a magic link — tap it
+            to sign in, no password needed.
           </p>
         ) : (
           <>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+            <p className="text-navy-soft mt-2 text-base leading-relaxed">
               Sign in with just your email so your streak follows you across devices — no password
               required.
             </p>
@@ -61,13 +61,13 @@ function AuthModal({ onClose }) {
                 placeholder="you@example.com"
                 autoComplete="email"
                 autoFocus
-                className="h-11 w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900 placeholder:text-neutral-400 transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:focus:ring-white/10"
+                className="text-navy border-line bg-ivory placeholder:text-navy-soft/60 focus:border-gold h-12 w-full rounded-xl border-2 px-3 text-base transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none"
               />
-              {error && <p className="text-sm text-rose-500">{error}</p>}
+              {error && <p className="text-error text-sm">{error}</p>}
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="bg-gold h-11 rounded-lg text-sm font-semibold text-white shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-110 disabled:opacity-40"
+                className="bg-gold text-navy min-h-12 rounded-xl text-base font-semibold shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-105 disabled:opacity-40"
               >
                 {status === 'sending' ? 'Sending…' : 'Send magic link'}
               </button>
@@ -75,7 +75,7 @@ function AuthModal({ onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="mt-3 w-full text-center text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+              className="text-navy-soft hover:text-navy mt-3 min-h-9 w-full text-center text-sm font-medium transition-colors"
             >
               Maybe later
             </button>

@@ -6,11 +6,11 @@ function PuzzleGrid({ puzzle, attempts, status }) {
 
   return (
     <div className="w-full max-w-md">
-      <div className="flex flex-wrap justify-center gap-2">
+      <div className="flex flex-wrap justify-center gap-3">
         {initials.map((letter, i) => (
           <div
             key={i}
-            className="text-gold dark:text-gold-light flex h-12 w-12 items-center justify-center rounded-lg border-2 border-amber-200 bg-amber-50 text-xl font-bold shadow-sm dark:border-amber-900/50 dark:bg-neutral-900"
+            className="text-navy flex h-16 w-16 items-center justify-center rounded-xl border-2 border-gold/50 bg-card text-3xl font-bold shadow-sm"
           >
             {letter}
           </div>
@@ -18,12 +18,12 @@ function PuzzleGrid({ puzzle, attempts, status }) {
       </div>
 
       <p
-        className={`mt-3 text-center text-sm font-medium ${
+        className={`mt-4 text-center text-base font-medium ${
           status === 'won'
-            ? 'text-emerald-600 dark:text-emerald-400'
+            ? 'text-success'
             : status === 'lost'
-              ? 'text-rose-600 dark:text-rose-400'
-              : 'text-neutral-500 dark:text-neutral-400'
+              ? 'text-error'
+              : 'text-navy-soft'
         }`}
       >
         {status === 'playing'

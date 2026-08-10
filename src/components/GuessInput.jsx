@@ -81,7 +81,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
           lockedWords[i] ? (
             <div
               key={i}
-              className="animate-pop-in flex h-11 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 px-3 text-sm font-semibold text-emerald-800 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200"
+              className="animate-pop-in border-success/40 bg-success-bg text-success flex h-14 items-center justify-center rounded-xl border-2 px-4 text-lg font-semibold shadow-sm"
             >
               {lockedWords[i]}
             </div>
@@ -96,7 +96,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
               disabled={disabled}
               placeholder={`Word ${i + 1}`}
               autoComplete="off"
-              className="focus:border-gold h-11 w-24 rounded-lg border border-amber-200 bg-amber-50 px-2 text-center text-sm text-neutral-900 placeholder:text-neutral-400 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 disabled:opacity-50"
+              className="focus:border-gold text-navy border-line bg-card placeholder:text-navy-soft/60 h-14 w-28 rounded-xl border-2 px-2 text-center text-lg transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none disabled:opacity-50"
             />
           ),
         )}
@@ -104,7 +104,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
       <button
         type="submit"
         disabled={!canSubmit}
-        className="bg-gold rounded-lg px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-110 disabled:opacity-40"
+        className="bg-gold text-navy min-h-12 rounded-xl px-8 py-3 text-lg font-semibold shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-105 disabled:opacity-40"
       >
         Guess
       </button>

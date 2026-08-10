@@ -31,9 +31,9 @@ function ShareButton({ puzzle, game }) {
     <button
       type="button"
       onClick={handleClick}
-      className="mt-4 rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+      className="bg-gold text-navy mt-5 min-h-12 w-full max-w-xs rounded-xl px-6 py-3 text-lg font-semibold shadow-sm transition-all hover:shadow-md hover:brightness-105"
     >
-      {copyState === 'copied' ? 'Copied! 📋' : copyState === 'failed' ? "Couldn't copy" : 'Share Result'}
+      {copyState === 'copied' ? 'Copied!' : copyState === 'failed' ? "Couldn't copy" : 'Share Result'}
     </button>
   )
 }

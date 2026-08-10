@@ -1,14 +1,15 @@
 import { CATEGORY_LABEL, CATEGORY_ICON } from '../lib/categoryTheme'
+import LockIcon from './LockIcon'
 
 // won/lost only -- "still playing" isn't worth a dot, nothing to report yet.
 const STATUS_DOT = {
-  won: 'bg-emerald-500',
-  lost: 'bg-rose-500',
+  won: 'bg-success',
+  lost: 'bg-error',
 }
 
 function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCategories }) {
   return (
-    <div className="flex gap-1 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800">
+    <div className="flex flex-wrap justify-center gap-1.5">
       {categories.map((category) => {
         const isActive = category === active
         const status = statusByCategory[category] ?? 'playing'
@@ -18,20 +19,19 @@ function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCa
             key={category}
             type="button"
             onClick={() => onSelect(category)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+            className={`text-navy flex min-h-11 items-center gap-1 rounded-xl border px-2.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
               isActive
-                ? 'text-gold dark:text-gold-light bg-amber-100 shadow-sm dark:bg-amber-950/40'
-                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
-            } ${isLocked && !isActive ? 'opacity-60' : ''}`}
+                ? 'border-gold bg-gold/12'
+                : 'border-line bg-card hover:border-gold/50 hover:bg-gold/5'
+            }`}
           >
-            <span aria-hidden="true">{CATEGORY_ICON[category]}</span>
+            <span aria-hidden="true" className="text-base">
+              {CATEGORY_ICON[category]}
+            </span>
             {CATEGORY_LABEL[category]}
-            {isLocked ? (
-              <span aria-hidden="true" className="text-[10px] leading-none">
-                🔒
-              </span>
-            ) : (
-              status !== 'playing' && <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[status]}`} />
+            {isLocked && <LockIcon className="text-navy-soft h-3.5 w-3.5" />}
+            {!isLocked && status !== 'playing' && (
+              <span className={`h-2 w-2 rounded-full ${STATUS_DOT[status]}`} />
             )}
           </button>
         )

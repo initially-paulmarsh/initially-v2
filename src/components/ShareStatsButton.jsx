@@ -23,9 +23,9 @@ function ShareStatsButton({ stats }) {
     <button
       type="button"
       onClick={handleClick}
-      className="bg-gold w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-110"
+      className="bg-gold text-navy min-h-12 w-full rounded-xl px-4 py-3 text-base font-semibold shadow-sm transition-all hover:shadow-md hover:brightness-105"
     >
-      {copyState === 'copied' ? 'Copied! 📋' : copyState === 'failed' ? "Couldn't copy" : 'Share My Stats'}
+      {copyState === 'copied' ? 'Copied!' : copyState === 'failed' ? "Couldn't copy" : 'Share My Stats'}
     </button>
   )
 }

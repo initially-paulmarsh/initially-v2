@@ -1,19 +1,18 @@
-import { CATEGORY_LABEL, CATEGORY_ICON } from '../lib/categoryTheme'
+import { CATEGORY_LABEL } from '../lib/categoryTheme'
+import LockIcon from './LockIcon'
 
 function LockedCategoryPanel({ category }) {
   return (
-    <div className="animate-fade-slide-in mt-8 w-full max-w-md rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-6 text-center dark:border-neutral-800 dark:bg-neutral-900/60">
-      <div className="text-3xl" aria-hidden="true">
-        🔒
-      </div>
-      <p className="mt-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
-        Today's {CATEGORY_ICON[category]} {CATEGORY_LABEL[category]} puzzle is subscriber-only
+    <div className="animate-fade-slide-in border-line bg-card mt-8 w-full max-w-md rounded-2xl border px-5 py-8 text-center">
+      <LockIcon className="text-navy-soft mx-auto h-8 w-8" />
+      <p className="text-navy mt-3 text-lg font-semibold">
+        Today's {CATEGORY_LABEL[category]} puzzle is subscriber-only
       </p>
-      <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+      <p className="text-navy-soft mt-1 text-base leading-relaxed">
         Subscriptions aren't open yet — one free category unlocks daily until they launch.
       </p>
-      <span className="mt-4 inline-block rounded-lg bg-neutral-200 px-5 py-2.5 text-sm font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
-        🔒 Available with subscription (launching soon)
+      <span className="border-line bg-ivory text-navy-soft mt-4 inline-block rounded-xl border px-5 py-2.5 text-sm font-semibold">
+        Available with subscription (launching soon)
       </span>
     </div>
   )

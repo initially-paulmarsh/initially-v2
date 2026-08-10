@@ -171,7 +171,7 @@ function App() {
   if (loadError) {
     return (
       <Centered>
-        <p className="text-rose-500">Couldn't load today's puzzles: {loadError}</p>
+        <p className="text-error text-lg">Couldn't load today's puzzles: {loadError}</p>
       </Centered>
     )
   }
@@ -179,7 +179,7 @@ function App() {
   if (!puzzles) {
     return (
       <Centered>
-        <p className="text-neutral-500 dark:text-neutral-400">Loading today's puzzles…</p>
+        <p className="text-navy-soft text-lg">Loading today's puzzles…</p>
       </Centered>
     )
   }
@@ -192,31 +192,23 @@ function App() {
   )
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-4 py-10 dark:bg-neutral-950">
+    <div className="bg-ivory min-h-screen px-4 py-8">
       <div className="mx-auto flex max-w-md flex-col items-center">
-        <div className="flex items-center gap-3">
-          <Logo className="h-11 w-11" />
-          <h1 className="text-gold dark:text-gold-light text-4xl font-extrabold tracking-tight">INITIALLY</h1>
-        </div>
-        <p className="mt-1.5 text-neutral-500 dark:text-neutral-400">
-          Guess the title from its initials.
-        </p>
-
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+        <div className="flex w-full items-center justify-end gap-4">
           {session === null && (
             <button
               type="button"
               onClick={() => setAuthModalOpen(true)}
-              className="text-gold dark:text-gold-light text-xs font-semibold underline decoration-dotted underline-offset-4 transition-colors hover:opacity-80"
+              className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium underline decoration-dotted underline-offset-4 transition-colors"
             >
-              Sign in to save your streak
+              Sign in
             </button>
           )}
           {session && (
             <button
               type="button"
               onClick={() => signOut()}
-              className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+              className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium transition-colors"
             >
               {session.user.email} · Sign out
             </button>
@@ -224,10 +216,20 @@ function App() {
           <button
             type="button"
             onClick={() => setStatsOpen(true)}
-            className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+            className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium transition-colors"
           >
-            📊 Stats
+            Stats
           </button>
+        </div>
+
+        <div className="mt-4 flex flex-col items-center">
+          <div className="flex items-center gap-3">
+            <Logo className="h-11 w-11" />
+            <h1 className="text-gold text-4xl font-extrabold tracking-tight uppercase">INITIALLY</h1>
+          </div>
+          <p className="text-navy mt-3 text-xs font-semibold tracking-[0.2em] uppercase">
+            Guess the title from its initials
+          </p>
         </div>
 
         {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
@@ -247,7 +249,7 @@ function App() {
           !canPlay ? (
             <LockedCategoryPanel category={activeCategory} />
           ) : (
-            <div className="mt-9 w-full rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="border-line bg-card mt-8 w-full rounded-2xl border p-6 shadow-sm sm:p-8">
               <PuzzleGrid puzzle={activePuzzle} attempts={activeGame.attempts} status={activeGame.status} />
 
               {activeGame.status === 'playing' ? (
@@ -273,7 +275,7 @@ function App() {
                   <button
                     type="button"
                     onClick={handleRevealAnswer}
-                    className="text-xs font-medium text-neutral-400 underline decoration-dotted underline-offset-4 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+                    className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium underline decoration-dotted underline-offset-4 transition-colors"
                   >
                     Reveal Answer
                   </button>
@@ -282,9 +284,7 @@ function App() {
             </div>
           )
         ) : (
-          <p className="mt-8 text-neutral-500 dark:text-neutral-400">
-            No puzzle available for this category today.
-          </p>
+          <p className="text-navy-soft mt-8 text-base">No puzzle available for this category today.</p>
         )}
       </div>
     </div>
@@ -293,56 +293,33 @@ function App() {
 
 function ResultPanel({ puzzle, game }) {
   const won = game.status === 'won'
-  const titleEl = (
-    <strong className="font-semibold text-neutral-900 dark:text-neutral-100">{puzzle.title}</strong>
-  )
   const meaning = puzzle.category === 'proverb' ? puzzle.hints?.meaning : null
+  const statusLabel = won ? 'Solved!' : 'Answer revealed'
 
   return (
-    <div
-      className={`animate-fade-slide-in mt-8 w-full max-w-md rounded-xl border px-5 py-4 text-center ${
-        won
-          ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-900/70 dark:bg-emerald-950/30'
-          : 'border-rose-200 bg-rose-50 dark:border-rose-900/70 dark:bg-rose-950/30'
-      }`}
-    >
-      <p
-        className={`text-base leading-relaxed font-medium ${
-          won ? 'text-emerald-900 dark:text-emerald-200' : 'text-rose-900 dark:text-rose-200'
-        }`}
-      >
-        {won ? (
-          <>
-            {game.resultMessage.message}
-            {puzzle.fun_fact && ` ${puzzle.fun_fact}`}
-          </>
-        ) : (
-          <>
-            {game.resultMessage.lead} — the answer was {titleEl}.
-            {puzzle.fun_fact && ` ${puzzle.fun_fact}`}
-          </>
-        )}
+    <div className="animate-fade-slide-in border-line bg-ivory mt-8 w-full max-w-md rounded-2xl border p-6 text-center">
+      <p className="text-success flex items-center justify-center gap-1.5 text-sm font-bold tracking-wide uppercase">
+        <span aria-hidden="true">✓</span> {statusLabel}
       </p>
 
-      {meaning && (
-        <p
-          className={`mt-2 text-sm leading-relaxed italic ${
-            won ? 'text-emerald-800/90 dark:text-emerald-300/90' : 'text-rose-800/90 dark:text-rose-300/90'
-          }`}
-        >
-          Meaning: {meaning}
-        </p>
+      <p className="text-navy mt-2 text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+        {puzzle.title}
+      </p>
+
+      {puzzle.fun_fact && (
+        <p className="text-navy-soft mt-3 text-base leading-relaxed">{puzzle.fun_fact}</p>
       )}
 
-      <p
-        className={`mt-3 border-t pt-3 text-sm font-bold ${
-          won
-            ? 'border-emerald-200 text-emerald-600 dark:border-emerald-900/70 dark:text-emerald-300'
-            : 'border-rose-200 text-rose-600 dark:border-rose-900/70 dark:text-rose-400'
-        }`}
-      >
-        {won ? game.resultMessage.closer : game.resultMessage.tail}
-      </p>
+      {meaning && <p className="text-navy-soft mt-2 text-sm leading-relaxed italic">Meaning: {meaning}</p>}
+
+      <div className="border-gold/30 bg-gold/8 mt-4 rounded-xl border px-4 py-3">
+        <p className="text-navy text-sm leading-relaxed">
+          {won ? game.resultMessage.message : game.resultMessage.lead}
+        </p>
+        <p className="text-navy mt-1 text-sm leading-relaxed font-semibold">
+          {won ? game.resultMessage.closer : game.resultMessage.tail}
+        </p>
+      </div>
 
       <ShareButton puzzle={puzzle} game={game} />
     </div>
@@ -350,11 +327,7 @@ function ResultPanel({ puzzle, game }) {
 }
 
 function Centered({ children }) {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 dark:bg-neutral-950">
-      {children}
-    </div>
-  )
+  return <div className="bg-ivory flex min-h-screen items-center justify-center">{children}</div>
 }
 
 export default App

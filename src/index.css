@@ -1,16 +1,33 @@
+/* Playfair Display: elegant serif used for the puzzle title in the result
+   panel. Must precede the Tailwind import -- @import rules have to come
+   first in the stylesheet. */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap");
 @import "tailwindcss";
 
-/* The app's one signature accent -- the INITIALLY wordmark and the Guess
-   button both use this, so they read as the same brand color. Two shades
-   since a wordmark needs to flip for light/dark backgrounds, but a filled
-   button (white text on top) reads fine as the same gold in both themes. */
+/* Warm, light, single-theme palette (no dark mode) -- a crossword-book
+   aesthetic for an older audience, not a gaming dashboard. Every pairing
+   below is contrast-checked against the surface it's actually used on:
+   navy and navy-soft both clear 5:1+ on ivory/card; navy clears 5.2:1 on
+   gold (so buttons use navy text, not white -- white-on-gold only hits
+   ~2.8:1, which fails). Gold itself is ~2.6:1 on ivory, so it's used for
+   backgrounds/borders/buttons and the logo (exempt as a wordmark under
+   WCAG 1.4.3), never as small running text. */
 @theme {
-  --color-gold: #9c6b0a;
-  --color-gold-light: #e8bf5c;
+  --color-ivory: #faf7ef; /* page background */
+  --color-card: #fffdf8; /* card background, a touch lighter than the page */
+  --color-line: #e7dcc3; /* subtle warm border */
+  --color-navy: #172b3a; /* primary text -- 13.6:1 on ivory */
+  --color-navy-soft: #55697a; /* secondary/muted text -- 5.4:1 on ivory */
+  --color-gold: #c8922e; /* brand/accent -- buttons, borders, selected states, logo */
+  --color-success: #5c7a59; /* muted sage -- correct/won, 4.5:1 on ivory */
+  --color-success-bg: #e7eee4;
+  --color-error: #a15a45; /* muted terracotta -- mistakes/errors, 4.8:1 on ivory */
+  --color-error-bg: #f5e2dc;
 }
 
 body {
   margin: 0;
+  background-color: var(--color-ivory);
 }
 
 @keyframes pop-in {
