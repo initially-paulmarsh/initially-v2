@@ -4,6 +4,7 @@ import PuzzleGrid from './components/PuzzleGrid'
 import HintPanel from './components/HintPanel'
 import GuessInput from './components/GuessInput'
 import AuthModal from './components/AuthModal'
+import NotificationOptIn from './components/NotificationOptIn'
 import StatsPage from './components/StatsPage'
 import ShareButton from './components/ShareButton'
 import LockedCategoryPanel from './components/LockedCategoryPanel'
@@ -15,6 +16,12 @@ import { getWinMessage, getLossMessage } from './lib/messages'
 import { useSession, signOut } from './lib/auth'
 import { recordCompletion, syncStatsOnSignIn } from './lib/stats'
 import { canPlayCategory } from './lib/access'
+import {
+  isNativePlatform,
+  hasBeenPromptedForNotifications,
+  markNotificationsPrompted,
+  rescheduleIfAlreadyGranted,
+} from './lib/notifications'
 
 // Set once the sign-in prompt has auto-opened, so it interrupts at most once
 // per browser rather than re-popping after every puzzle completion.
@@ -44,6 +51,7 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('movie')
   const [loadError, setLoadError] = useState(null)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [notifModalOpen, setNotifModalOpen] = useState(false)
   const [statsOpen, setStatsOpen] = useState(false)
   const session = useSession()
 
@@ -78,6 +86,30 @@ function App() {
       syncStatsOnSignIn(session.user.id)
     }
   }, [session])
+
+  // Only relevant inside the native iOS shell — offer a daily reminder
+  // opt-in after the player's first puzzle completion, same trigger as the
+  // sign-in prompt above but gated on that one being closed first so the two
+  // never stack. A soft in-app ask (rather than firing the OS permission
+  // dialog immediately) means a "no thanks" here costs nothing, whereas a
+  // real OS denial can only be undone by the player in Settings.
+  useEffect(() => {
+    if (!isNativePlatform()) return
+    if (authModalOpen) return
+    if (hasBeenPromptedForNotifications()) return
+    const hasCompletedAny = Object.values(gameState).some((g) => g.status !== 'playing')
+    if (hasCompletedAny) {
+      setNotifModalOpen(true)
+      markNotificationsPrompted()
+    }
+  }, [gameState, authModalOpen])
+
+  // Returning player who already granted permission earlier — re-roll
+  // today's reminder copy. Never prompts; only touches an already-granted
+  // permission.
+  useEffect(() => {
+    if (isNativePlatform()) rescheduleIfAlreadyGranted()
+  }, [])
 
   const statusByCategory = useMemo(() => {
     const map = {}
@@ -233,6 +265,7 @@ function App() {
         </div>
 
         {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
+        {notifModalOpen && <NotificationOptIn onClose={() => setNotifModalOpen(false)} />}
         {statsOpen && <StatsPage onClose={() => setStatsOpen(false)} />}
 
         <div className="mt-7">
