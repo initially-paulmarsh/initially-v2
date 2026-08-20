@@ -19,19 +19,19 @@ function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCa
             key={category}
             type="button"
             onClick={() => onSelect(category)}
-            className={`text-navy flex min-h-11 items-center justify-center gap-1 rounded-xl border px-2.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
+            className={`text-navy flex min-h-14 items-center justify-center gap-2 rounded-xl border px-3 py-3 text-lg font-semibold whitespace-nowrap transition-colors ${
               isActive
                 ? 'border-gold bg-gold/12'
                 : 'border-line bg-card hover:border-gold/50 hover:bg-gold/5'
             }`}
           >
-            <span aria-hidden="true" className="text-base">
+            <span aria-hidden="true" className="text-xl">
               {CATEGORY_ICON[category]}
             </span>
             {CATEGORY_LABEL[category]}
-            {isLocked && <LockIcon className="text-navy-soft h-3.5 w-3.5" />}
+            {isLocked && <LockIcon className="text-navy-soft h-4 w-4" />}
             {!isLocked && status !== 'playing' && (
-              <span className={`h-2 w-2 rounded-full ${STATUS_DOT[status]}`} />
+              <span className={`h-2.5 w-2.5 rounded-full ${STATUS_DOT[status]}`} />
             )}
           </button>
         )

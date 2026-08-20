@@ -266,7 +266,7 @@ function App() {
         {notifModalOpen && <NotificationOptIn onClose={() => setNotifModalOpen(false)} />}
         {statsOpen && <StatsPage onClose={() => setStatsOpen(false)} />}
 
-        <div className="mt-7">
+        <div className="mt-7 w-full">
           <CategoryTabs
             categories={CATEGORIES.filter((c) => puzzles[c])}
             active={activeCategory}
