@@ -9,7 +9,7 @@ const STATUS_DOT = {
 
 function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCategories }) {
   return (
-    <div className="flex flex-wrap justify-center gap-1.5">
+    <div className="grid grid-cols-2 gap-1.5">
       {categories.map((category) => {
         const isActive = category === active
         const status = statusByCategory[category] ?? 'playing'
@@ -19,7 +19,7 @@ function CategoryTabs({ categories, active, onSelect, statusByCategory, lockedCa
             key={category}
             type="button"
             onClick={() => onSelect(category)}
-            className={`text-navy flex min-h-11 items-center gap-1 rounded-xl border px-2.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
+            className={`text-navy flex min-h-11 items-center justify-center gap-1 rounded-xl border px-2.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
               isActive
                 ? 'border-gold bg-gold/12'
                 : 'border-line bg-card hover:border-gold/50 hover:bg-gold/5'

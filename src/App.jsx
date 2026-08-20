@@ -8,7 +8,7 @@ import NotificationOptIn from './components/NotificationOptIn'
 import StatsPage from './components/StatsPage'
 import ShareButton from './components/ShareButton'
 import LockedCategoryPanel from './components/LockedCategoryPanel'
-import Logo from './components/Logo'
+import logoWordmark from './assets/logo-wordmark.webp'
 import { CATEGORIES, fetchTodaysPuzzles } from './lib/dailyPuzzle'
 import { isMatch } from './lib/fuzzyMatch'
 import { MAX_GUESSES } from './lib/hints'
@@ -255,13 +255,11 @@ function App() {
         </div>
 
         <div className="mt-4 flex flex-col items-center">
-          <div className="flex items-center gap-3">
-            <Logo className="h-16 w-16" />
-            <h1 className="text-gold text-5xl font-extrabold tracking-tight uppercase">INITIALLY</h1>
-          </div>
-          <p className="text-navy mt-3 text-xs font-semibold tracking-[0.2em] uppercase">
-            Guess the title from its initials
-          </p>
+          <img
+            src={logoWordmark}
+            alt="INITIALLY — guess the title from its initials"
+            className="h-auto w-full max-w-md"
+          />
         </div>
 
         {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
