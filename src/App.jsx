@@ -15,7 +15,8 @@ import { MAX_GUESSES } from './lib/hints'
 import { getWinMessage, getLossMessage } from './lib/messages'
 import { useSession, signOut } from './lib/auth'
 import { recordCompletion, syncStatsOnSignIn } from './lib/stats'
-import { canPlayCategory } from './lib/access'
+import { canPlayCategory, getBonusCategory, hasSharedUnlock, markSharedUnlock } from './lib/access'
+import { getUkDateString } from './lib/ukDate'
 import {
   isNativePlatform,
   hasBeenPromptedForNotifications,
@@ -54,6 +55,28 @@ function App() {
   const [notifModalOpen, setNotifModalOpen] = useState(false)
   const [statsOpen, setStatsOpen] = useState(false)
   const session = useSession()
+
+  // UK calendar date this puzzle set is keyed to -- stable per day, drives
+  // both the signed-in bonus category and the share-unlock check below.
+  const puzzleDate = useMemo(() => getUkDateString(), [])
+  const [sharedUnlock, setSharedUnlock] = useState(() => hasSharedUnlock(puzzleDate))
+
+  const freeCategory = useMemo(
+    () => (puzzles ? CATEGORIES.find((c) => puzzles[c]?.is_free) : null),
+    [puzzles],
+  )
+  // The signed-in player's one bonus category for today, on top of
+  // freeCategory -- see getBonusCategory for why this needs no DB write.
+  const bonusCategory = useMemo(
+    () => getBonusCategory({ session, puzzleDate, freeCategory }),
+    [session, puzzleDate, freeCategory],
+  )
+
+  function handleShared() {
+    if (sharedUnlock) return
+    markSharedUnlock(puzzleDate)
+    setSharedUnlock(true)
+  }
 
   useEffect(() => {
     fetchTodaysPuzzles()
@@ -125,7 +148,7 @@ function App() {
     const puzzle = puzzles[activeCategory]
     const current = gameState[activeCategory]
     if (!puzzle || !current || current.status !== 'playing') return false
-    if (!canPlayCategory({ session, puzzle })) return false
+    if (!canPlayCategory({ puzzle, bonusCategory, sharedUnlock })) return false
 
     const correctWords = puzzle.title.split(' ')
     const lockedWords = current.lockedWords.map((locked, i) =>
@@ -167,7 +190,7 @@ function App() {
   }
 
   function handleRevealHint(index) {
-    if (!canPlayCategory({ session, puzzle: puzzles[activeCategory] })) return
+    if (!canPlayCategory({ puzzle: puzzles[activeCategory], bonusCategory, sharedUnlock })) return
     setGameState((prev) => {
       const current = prev[activeCategory]
       if (!current) return prev
@@ -184,7 +207,7 @@ function App() {
     const puzzle = puzzles[activeCategory]
     const current = gameState[activeCategory]
     if (!current || current.status !== 'playing') return
-    if (!canPlayCategory({ session, puzzle })) return
+    if (!canPlayCategory({ puzzle, bonusCategory, sharedUnlock })) return
 
     recordCompletion({
       category: activeCategory,
@@ -218,9 +241,9 @@ function App() {
 
   const activePuzzle = puzzles[activeCategory]
   const activeGame = gameState[activeCategory]
-  const canPlay = canPlayCategory({ session, puzzle: activePuzzle })
+  const canPlay = canPlayCategory({ puzzle: activePuzzle, bonusCategory, sharedUnlock })
   const lockedCategories = new Set(
-    CATEGORIES.filter((c) => puzzles[c] && !canPlayCategory({ session, puzzle: puzzles[c] })),
+    CATEGORIES.filter((c) => puzzles[c] && !canPlayCategory({ puzzle: puzzles[c], bonusCategory, sharedUnlock })),
   )
 
   return (
@@ -278,7 +301,11 @@ function App() {
 
         {activePuzzle && activeGame ? (
           !canPlay ? (
-            <LockedCategoryPanel category={activeCategory} />
+            <LockedCategoryPanel
+              category={activeCategory}
+              session={session}
+              onSignIn={() => setAuthModalOpen(true)}
+            />
           ) : (
             <div className="border-line bg-card mt-8 w-full rounded-2xl border p-4 shadow-sm sm:p-8">
               <PuzzleGrid puzzle={activePuzzle} attempts={activeGame.attempts} status={activeGame.status} />
@@ -292,7 +319,12 @@ function App() {
                   disabled={activeGame.status !== 'playing'}
                 />
               ) : (
-                <ResultPanel puzzle={activePuzzle} game={activeGame} />
+                <ResultPanel
+                  puzzle={activePuzzle}
+                  game={activeGame}
+                  onShared={handleShared}
+                  sharedUnlock={sharedUnlock}
+                />
               )}
 
               <HintPanel
@@ -322,7 +354,7 @@ function App() {
   )
 }
 
-function ResultPanel({ puzzle, game }) {
+function ResultPanel({ puzzle, game, onShared, sharedUnlock }) {
   const won = game.status === 'won'
   const meaning = puzzle.category === 'proverb' ? puzzle.hints?.meaning : null
   const statusLabel = won ? 'Solved!' : 'Answer revealed'
@@ -352,7 +384,7 @@ function ResultPanel({ puzzle, game }) {
         </p>
       </div>
 
-      <ShareButton puzzle={puzzle} game={game} />
+      <ShareButton puzzle={puzzle} game={game} onShared={onShared} sharedUnlock={sharedUnlock} />
     </div>
   )
 }
