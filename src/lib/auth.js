@@ -24,6 +24,20 @@ export function signInWithEmail(email) {
   })
 }
 
+// App Review can't receive our emailed codes, so this one account (created
+// in Supabase with a password, see the App Store submission notes) signs
+// in with a password instead. Typing this exact address is the only way to
+// see the password field -- everyone else gets the code flow.
+export const REVIEW_EMAIL = 'review@initially-app.com'
+
+export function isReviewEmail(email) {
+  return email.trim().toLowerCase() === REVIEW_EMAIL
+}
+
+export function signInWithPassword(email, password) {
+  return supabase.auth.signInWithPassword({ email: email.trim(), password })
+}
+
 // Resolves the session via onAuthStateChange, same as the magic link does.
 export function verifyEmailCode(email, token) {
   return supabase.auth.verifyOtp({ email, token, type: 'email' })

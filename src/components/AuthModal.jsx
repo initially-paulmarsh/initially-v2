@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { signInWithEmail, verifyEmailCode } from '../lib/auth'
+import { isReviewEmail, signInWithEmail, signInWithPassword, verifyEmailCode } from '../lib/auth'
 import { getPendingInvite, setPendingInvite } from '../lib/profile'
 
 function AuthModal({ onClose }) {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
+  const [password, setPassword] = useState('')
+  const reviewer = isReviewEmail(email)
   // Prefilled from a ?invite= link (lib/profile.js). Typing one in covers a
   // friend who got the code some other way, e.g. installed the app straight
   // from the App Store rather than tapping the link.
@@ -21,6 +23,16 @@ function AuthModal({ onClose }) {
     // Held until the session appears, then claimed by App -- see
     // claimPendingInvite.
     setPendingInvite(inviteCode.trim() || null)
+    // App Review's account only -- see REVIEW_EMAIL. The session arrives
+    // through onAuthStateChange and App closes this modal, as with a code.
+    if (reviewer) {
+      const { error } = await signInWithPassword(email, password)
+      if (error) {
+        setError(error.message)
+        setStatus('error')
+      }
+      return
+    }
     const { error } = await signInWithEmail(email.trim())
     if (error) {
       setError(error.message)
@@ -122,7 +134,18 @@ function AuthModal({ onClose }) {
                 autoFocus
                 className="text-navy border-line bg-ivory placeholder:text-navy-soft/60 focus:border-gold h-12 w-full rounded-xl border-2 px-3 text-base transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none"
               />
-              {showInvite ? (
+              {reviewer && (
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  autoComplete="current-password"
+                  className="text-navy border-line bg-ivory placeholder:text-navy-soft/60 focus:border-gold h-12 w-full rounded-xl border-2 px-3 text-base transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none"
+                />
+              )}
+              {reviewer ? null : showInvite ? (
                 <input
                   type="text"
                   value={inviteCode}
@@ -148,7 +171,7 @@ function AuthModal({ onClose }) {
                 disabled={status === 'sending'}
                 className="bg-gold text-navy min-h-12 rounded-xl text-base font-semibold shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-105 disabled:opacity-40"
               >
-                {status === 'sending' ? 'Sending…' : 'Email me a code'}
+                {status === 'sending' ? (reviewer ? 'Signing in…' : 'Sending…') : reviewer ? 'Sign in' : 'Email me a code'}
               </button>
             </form>
             <button
