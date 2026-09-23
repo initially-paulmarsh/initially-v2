@@ -1,51 +1,42 @@
-import { useEffect, useRef, useState } from 'react'
 import { buildResultShareText } from '../lib/share'
+import { inviteLink } from '../lib/profile'
 import { getUkDateString } from '../lib/ukDate'
+import ShareActions from './ShareActions'
 
-function ShareButton({ puzzle, game, onShared, sharedUnlock }) {
-  const [copyState, setCopyState] = useState('idle') // idle | copied | failed
-  const timeoutRef = useRef(null)
-
-  useEffect(() => () => clearTimeout(timeoutRef.current), [])
-
-  async function handleClick() {
-    const text = buildResultShareText({
+// Signed-out players can still share (every share brings in new players),
+// but only a signed-in player's link carries an invite code -- so the nudge
+// underneath tells them what they're missing.
+function ShareButton({ puzzle, game, profile, signedIn, onSignIn }) {
+  function getText() {
+    return buildResultShareText({
       category: puzzle.category,
       status: game.status,
       guessHistory: game.guessHistory,
       puzzleDate: getUkDateString(),
+      link: inviteLink(profile?.invite_code),
     })
-
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopyState('copied')
-      // Sharing unlocks every category for the rest of today (see
-      // lib/access.js) -- only on a successful copy, so a failed share
-      // doesn't grant the reward.
-      onShared?.()
-    } catch {
-      setCopyState('failed')
-    }
-
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => setCopyState('idle'), 2000)
   }
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={handleClick}
-        className="bg-gold text-navy mt-5 min-h-12 w-full max-w-xs rounded-xl px-6 py-3 text-lg font-semibold shadow-sm transition-all hover:shadow-md hover:brightness-105"
-      >
-        {copyState === 'copied' ? 'Copied!' : copyState === 'failed' ? "Couldn't copy" : 'Share Result'}
-      </button>
-      {!sharedUnlock && (
+    <div className="mt-5 w-full">
+      <ShareActions getText={getText} whatsAppLabel="Share result on WhatsApp" />
+      {signedIn ? (
         <p className="text-navy-soft mt-2 text-xs leading-relaxed">
-          Sharing unlocks every category for the rest of today.
+          Every friend who joins through your link unlocks a category for you — forever.
+        </p>
+      ) : (
+        <p className="text-navy-soft mt-2 text-xs leading-relaxed">
+          <button
+            type="button"
+            onClick={onSignIn}
+            className="text-navy font-semibold underline decoration-dotted underline-offset-2"
+          >
+            Sign in first
+          </button>{' '}
+          so friends who join through your link unlock categories for you.
         </p>
       )}
-    </>
+    </div>
   )
 }
 

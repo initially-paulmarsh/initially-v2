@@ -8,9 +8,15 @@ import { supabase } from './supabaseClient'
 // rejects the callback otherwise.
 const REDIRECT_URL = window.location.origin
 
-// shouldCreateUser defaults to true, so the first magic link for a new
-// email both creates the auth.users row and signs them in — no separate
-// sign-up step, consistent with "every user is a Supabase Auth user."
+// shouldCreateUser defaults to true, so the first code for a new email both
+// creates the auth.users row and signs them in — no separate sign-up step,
+// consistent with "every user is a Supabase Auth user."
+//
+// The email carries both a one-time code ({{ .Token }}) and the magic link
+// — see the Magic Link template in Supabase > Authentication > Emails. The
+// code is what the app asks for, because inside the iOS shell the link
+// opens Safari and signs in the website, not the app. The link still works
+// for anyone on the web who taps it instead.
 export function signInWithEmail(email) {
   return supabase.auth.signInWithOtp({
     email,
@@ -18,8 +24,24 @@ export function signInWithEmail(email) {
   })
 }
 
+// Resolves the session via onAuthStateChange, same as the magic link does.
+export function verifyEmailCode(email, token) {
+  return supabase.auth.verifyOtp({ email, token, type: 'email' })
+}
+
 export function signOut() {
   return supabase.auth.signOut()
+}
+
+// Required by App Store guideline 5.1.1(v) for any app that lets players
+// create an account. The delete_own_account RPC (supabase/schema.sql)
+// removes the player's plays, stats and auth.users row server-side; the
+// local sign-out afterwards just clears the now-orphaned session.
+export async function deleteAccount() {
+  const { error } = await supabase.rpc('delete_own_account')
+  if (error) return { error }
+  await supabase.auth.signOut({ scope: 'local' })
+  return { error: null }
 }
 
 // Tracks the current session client-side. `undefined` means "not yet

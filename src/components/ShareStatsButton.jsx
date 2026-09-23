@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { buildStatsShareText } from '../lib/share'
+import { inviteLink } from '../lib/profile'
 
-function ShareStatsButton({ stats }) {
+function ShareStatsButton({ stats, inviteCode }) {
   const [copyState, setCopyState] = useState('idle') // idle | copied | failed
   const timeoutRef = useRef(null)
 
@@ -9,7 +10,7 @@ function ShareStatsButton({ stats }) {
 
   async function handleClick() {
     try {
-      await navigator.clipboard.writeText(buildStatsShareText(stats))
+      await navigator.clipboard.writeText(buildStatsShareText(stats, inviteLink(inviteCode)))
       setCopyState('copied')
     } catch {
       setCopyState('failed')

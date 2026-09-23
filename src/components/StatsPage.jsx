@@ -4,7 +4,7 @@ import { getAllLocalStats } from '../lib/stats'
 import { CATEGORY_LABEL, CATEGORY_ICON } from '../lib/categoryTheme'
 import ShareStatsButton from './ShareStatsButton'
 
-function StatsPage({ onClose }) {
+function StatsPage({ profile, onClose }) {
   // Snapshot on open rather than a live subscription -- this modal fully
   // remounts each time it's opened, so it always reflects the latest local
   // stats without needing to track updates while it's closed.
@@ -38,7 +38,7 @@ function StatsPage({ onClose }) {
         </div>
 
         <div className="border-line mt-6 border-t pt-4">
-          <ShareStatsButton stats={stats} />
+          <ShareStatsButton stats={stats} inviteCode={profile?.invite_code} />
         </div>
       </div>
     </div>

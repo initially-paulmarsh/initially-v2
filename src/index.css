@@ -91,3 +91,15 @@ body {
 .animate-shake {
   animation: shake 400ms ease-in-out;
 }
+
+/* Header wordmark letters -- same gold gradient and soft lower shadow as
+   the app icon's "I", so the in-app logo and home-screen icon read as one
+   brand. drop-shadow (not text-shadow) because the fill is a clipped
+   background, and text-shadow would paint behind it in the flat color. */
+.wordmark-letter {
+  background: linear-gradient(180deg, #d0ad5e 0%, #b98a33 45%, #93671a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1.5px 0 rgba(110, 80, 30, 0.22));
+}

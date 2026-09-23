@@ -4,19 +4,21 @@ import PuzzleGrid from './components/PuzzleGrid'
 import HintPanel from './components/HintPanel'
 import GuessInput from './components/GuessInput'
 import AuthModal from './components/AuthModal'
+import AccountModal from './components/AccountModal'
 import NotificationOptIn from './components/NotificationOptIn'
 import StatsPage from './components/StatsPage'
 import ShareButton from './components/ShareButton'
 import LockedCategoryPanel from './components/LockedCategoryPanel'
-import logoWordmark from './assets/logo-wordmark.webp'
+import LeaderboardPage from './components/LeaderboardPage'
+import Wordmark from './components/Wordmark'
 import { CATEGORIES, fetchTodaysPuzzles } from './lib/dailyPuzzle'
 import { isMatch } from './lib/fuzzyMatch'
 import { MAX_GUESSES } from './lib/hints'
 import { getWinMessage, getLossMessage } from './lib/messages'
-import { useSession, signOut } from './lib/auth'
+import { useSession } from './lib/auth'
 import { recordCompletion, syncStatsOnSignIn } from './lib/stats'
-import { canPlayCategory, getBonusCategory, hasSharedUnlock, markSharedUnlock } from './lib/access'
-import { getUkDateString } from './lib/ukDate'
+import { canPlayCategory, unspentUnlocks } from './lib/access'
+import { captureInviteFromUrl, claimPendingInvite, useProfile } from './lib/profile'
 import {
   isNativePlatform,
   hasBeenPromptedForNotifications,
@@ -52,38 +54,27 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('movie')
   const [loadError, setLoadError] = useState(null)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
   const [notifModalOpen, setNotifModalOpen] = useState(false)
   const [statsOpen, setStatsOpen] = useState(false)
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
   const session = useSession()
+  const { profile, refresh: refreshProfile } = useProfile(session)
 
-  // UK calendar date this puzzle set is keyed to -- stable per day, drives
-  // both the signed-in bonus category and the share-unlock check below.
-  const puzzleDate = useMemo(() => getUkDateString(), [])
-  const [sharedUnlock, setSharedUnlock] = useState(() => hasSharedUnlock(puzzleDate))
-
-  const freeCategory = useMemo(
-    () => (puzzles ? CATEGORIES.find((c) => puzzles[c]?.is_free) : null),
-    [puzzles],
-  )
-  // The signed-in player's one bonus category for today, on top of
-  // freeCategory -- see getBonusCategory for why this needs no DB write.
-  const bonusCategory = useMemo(
-    () => getBonusCategory({ session, puzzleDate, freeCategory }),
-    [session, puzzleDate, freeCategory],
-  )
-
-  function handleShared() {
-    if (sharedUnlock) return
-    markSharedUnlock(puzzleDate)
-    setSharedUnlock(true)
-  }
+  // Before anything else reads the URL: hold onto an ?invite= code from a
+  // shared link until this visitor signs in (see claimPendingInvite).
+  useEffect(() => {
+    captureInviteFromUrl()
+  }, [])
 
   useEffect(() => {
     fetchTodaysPuzzles()
       .then((data) => {
         setPuzzles(data)
         setGameState(makeInitialGameState(data))
-        const firstAvailable = CATEGORIES.find((c) => data[c])
+        // Open on today's free puzzle, so a first-time visitor from a shared
+        // link lands on something they can play rather than a lock.
+        const firstAvailable = CATEGORIES.find((c) => data[c]?.is_free) ?? CATEGORIES.find((c) => data[c])
         if (firstAvailable) setActiveCategory(firstAvailable)
       })
       .catch((err) => setLoadError(err.message))
@@ -107,8 +98,11 @@ function App() {
     if (session) {
       setAuthModalOpen(false)
       syncStatsOnSignIn(session.user.id)
+      // Credits whoever invited this (brand-new) player; a no-op for
+      // returning players. The inviter sees it on their next profile load.
+      claimPendingInvite().then(refreshProfile)
     }
-  }, [session])
+  }, [session, refreshProfile])
 
   // Only relevant inside the native iOS shell — offer a daily reminder
   // opt-in after the player's first puzzle completion, same trigger as the
@@ -148,7 +142,7 @@ function App() {
     const puzzle = puzzles[activeCategory]
     const current = gameState[activeCategory]
     if (!puzzle || !current || current.status !== 'playing') return false
-    if (!canPlayCategory({ puzzle, bonusCategory, sharedUnlock })) return false
+    if (!canPlayCategory({ puzzle, profile })) return false
 
     const correctWords = puzzle.title.split(' ')
     const lockedWords = current.lockedWords.map((locked, i) =>
@@ -190,7 +184,7 @@ function App() {
   }
 
   function handleRevealHint(index) {
-    if (!canPlayCategory({ puzzle: puzzles[activeCategory], bonusCategory, sharedUnlock })) return
+    if (!canPlayCategory({ puzzle: puzzles[activeCategory], profile })) return
     setGameState((prev) => {
       const current = prev[activeCategory]
       if (!current) return prev
@@ -207,7 +201,7 @@ function App() {
     const puzzle = puzzles[activeCategory]
     const current = gameState[activeCategory]
     if (!current || current.status !== 'playing') return
-    if (!canPlayCategory({ puzzle, bonusCategory, sharedUnlock })) return
+    if (!canPlayCategory({ puzzle, profile })) return
 
     recordCompletion({
       category: activeCategory,
@@ -241,9 +235,9 @@ function App() {
 
   const activePuzzle = puzzles[activeCategory]
   const activeGame = gameState[activeCategory]
-  const canPlay = canPlayCategory({ puzzle: activePuzzle, bonusCategory, sharedUnlock })
+  const canPlay = canPlayCategory({ puzzle: activePuzzle, profile })
   const lockedCategories = new Set(
-    CATEGORIES.filter((c) => puzzles[c] && !canPlayCategory({ puzzle: puzzles[c], bonusCategory, sharedUnlock })),
+    CATEGORIES.filter((c) => puzzles[c] && !canPlayCategory({ puzzle: puzzles[c], profile })),
   )
 
   return (
@@ -262,12 +256,19 @@ function App() {
           {session && (
             <button
               type="button"
-              onClick={() => signOut()}
+              onClick={() => setAccountOpen(true)}
               className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium transition-colors"
             >
-              {session.user.email} · Sign out
+              Account
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setLeaderboardOpen(true)}
+            className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium transition-colors"
+          >
+            Leaderboard
+          </button>
           <button
             type="button"
             onClick={() => setStatsOpen(true)}
@@ -277,17 +278,39 @@ function App() {
           </button>
         </div>
 
-        <div className="mt-4 flex flex-col items-center">
-          <img
-            src={logoWordmark}
-            alt="INITIALLY — guess the title from its initials"
-            className="h-auto w-full max-w-md"
-          />
+        <div className="mt-4 flex w-full flex-col items-center">
+          <Wordmark />
         </div>
 
+        {unspentUnlocks(profile) > 0 && (
+          <p className="animate-fade-slide-in border-gold/40 bg-gold/10 text-navy mt-5 w-full rounded-xl border px-4 py-3 text-center text-sm leading-relaxed">
+            🎉 A friend joined through your link! Tap a locked category to unlock it forever.
+          </p>
+        )}
+
         {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
+        {accountOpen && session && (
+          <AccountModal
+            email={session.user.email}
+            profile={profile}
+            onProfileChanged={refreshProfile}
+            onClose={() => setAccountOpen(false)}
+          />
+        )}
         {notifModalOpen && <NotificationOptIn onClose={() => setNotifModalOpen(false)} />}
-        {statsOpen && <StatsPage onClose={() => setStatsOpen(false)} />}
+        {statsOpen && <StatsPage profile={profile} onClose={() => setStatsOpen(false)} />}
+        {leaderboardOpen && (
+          <LeaderboardPage
+            session={session}
+            profile={profile}
+            onProfileChanged={refreshProfile}
+            onSignIn={() => {
+              setLeaderboardOpen(false)
+              setAuthModalOpen(true)
+            }}
+            onClose={() => setLeaderboardOpen(false)}
+          />
+        )}
 
         <div className="mt-7 w-full">
           <CategoryTabs
@@ -304,7 +327,9 @@ function App() {
             <LockedCategoryPanel
               category={activeCategory}
               session={session}
+              profile={profile}
               onSignIn={() => setAuthModalOpen(true)}
+              onUnlocked={refreshProfile}
             />
           ) : (
             <div className="border-line bg-card mt-8 w-full rounded-2xl border p-4 shadow-sm sm:p-8">
@@ -322,8 +347,9 @@ function App() {
                 <ResultPanel
                   puzzle={activePuzzle}
                   game={activeGame}
-                  onShared={handleShared}
-                  sharedUnlock={sharedUnlock}
+                  profile={profile}
+                  signedIn={Boolean(session)}
+                  onSignIn={() => setAuthModalOpen(true)}
                 />
               )}
 
@@ -354,7 +380,7 @@ function App() {
   )
 }
 
-function ResultPanel({ puzzle, game, onShared, sharedUnlock }) {
+function ResultPanel({ puzzle, game, profile, signedIn, onSignIn }) {
   const won = game.status === 'won'
   const meaning = puzzle.category === 'proverb' ? puzzle.hints?.meaning : null
   const statusLabel = won ? 'Solved!' : 'Answer revealed'
@@ -384,7 +410,7 @@ function ResultPanel({ puzzle, game, onShared, sharedUnlock }) {
         </p>
       </div>
 
-      <ShareButton puzzle={puzzle} game={game} onShared={onShared} sharedUnlock={sharedUnlock} />
+      <ShareButton puzzle={puzzle} game={game} profile={profile} signedIn={signedIn} onSignIn={onSignIn} />
     </div>
   )
 }

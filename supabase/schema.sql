@@ -40,7 +40,7 @@ create unique index idx_daily_puzzles_one_free_per_date
 -- User stats (auth required — every user is a Supabase Auth user, magic link)
 create table user_stats (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
   category text not null check (category in ('movie', 'proverb', 'song', 'book')),
   current_streak int default 0,
   max_streak int default 0,
@@ -55,7 +55,7 @@ create table user_stats (
 -- Individual play records (for analytics + stats history + sharing)
 create table plays (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
   daily_puzzle_id uuid references daily_puzzles(id) not null,
   guesses_used int not null,
   won boolean not null,
@@ -104,3 +104,27 @@ create policy "users can view their own plays"
 create policy "users can insert their own plays"
   on plays for insert
   with check (auth.uid() = user_id);
+
+-- Account deletion (App Store guideline 5.1.1(v)) -- see
+-- add_delete_own_account.sql for the rationale.
+create or replace function public.delete_own_account()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  uid uuid := auth.uid();
+begin
+  if uid is null then
+    raise exception 'not signed in';
+  end if;
+
+  delete from public.plays where user_id = uid;
+  delete from public.user_stats where user_id = uid;
+  delete from auth.users where id = uid;
+end;
+$$;
+
+revoke execute on function public.delete_own_account() from public, anon;
+grant execute on function public.delete_own_account() to authenticated;
