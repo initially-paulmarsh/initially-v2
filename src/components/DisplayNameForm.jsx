@@ -33,7 +33,7 @@ function DisplayNameForm({ initialName = '', onSaved, submitLabel = 'Save name' 
         autoComplete="nickname"
         className="text-navy border-line bg-ivory placeholder:text-navy-soft/60 focus:border-gold h-12 w-full rounded-xl border-2 px-3 text-base transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none"
       />
-      {error && <p className="text-error text-sm">{error}</p>}
+      {error && <p className="text-error text-base">{error}</p>}
       <button
         type="submit"
         disabled={saving || name.trim().length < 3}

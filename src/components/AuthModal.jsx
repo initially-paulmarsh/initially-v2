@@ -84,7 +84,7 @@ function AuthModal({ onClose }) {
                 autoFocus
                 className="text-navy border-line bg-ivory placeholder:text-navy-soft/60 focus:border-gold h-12 w-full rounded-xl border-2 px-3 text-center text-xl tracking-[0.3em] transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none"
               />
-              {error && <p className="text-error text-sm">{error}</p>}
+              {error && <p className="text-error text-base">{error}</p>}
               <button
                 type="submit"
                 disabled={status === 'verifying' || code.length < 6}
@@ -100,7 +100,7 @@ function AuthModal({ onClose }) {
                 setError(null)
                 setStatus('idle')
               }}
-              className="text-navy-soft hover:text-navy mt-3 min-h-9 w-full text-center text-sm font-medium transition-colors"
+              className="text-navy-soft hover:text-navy mt-3 min-h-9 w-full text-center text-base font-medium transition-colors"
             >
               Use a different email
             </button>
@@ -137,12 +137,12 @@ function AuthModal({ onClose }) {
                 <button
                   type="button"
                   onClick={() => setShowInvite(true)}
-                  className="text-navy-soft hover:text-navy self-start text-sm font-medium underline decoration-dotted underline-offset-4"
+                  className="text-navy-soft hover:text-navy self-start text-base font-medium underline decoration-dotted underline-offset-4"
                 >
                   Have an invite code?
                 </button>
               )}
-              {error && <p className="text-error text-sm">{error}</p>}
+              {error && <p className="text-error text-base">{error}</p>}
               <button
                 type="submit"
                 disabled={status === 'sending'}
@@ -154,7 +154,7 @@ function AuthModal({ onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="text-navy-soft hover:text-navy mt-3 min-h-9 w-full text-center text-sm font-medium transition-colors"
+              className="text-navy-soft hover:text-navy mt-3 min-h-9 w-full text-center text-base font-medium transition-colors"
             >
               Maybe later
             </button>

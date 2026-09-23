@@ -49,7 +49,7 @@ function LeaderboardPage({ session, profile, onProfileChanged, onSignIn, onClose
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-navy text-xl font-bold">Leaderboard</h2>
-            <p className="text-navy-soft text-sm">This week · resets every Monday</p>
+            <p className="text-navy-soft text-base">This week · resets every Monday</p>
           </div>
           <button
             type="button"
@@ -94,7 +94,7 @@ function LeaderboardPage({ session, profile, onProfileChanged, onSignIn, onClose
                   key={key}
                   type="button"
                   onClick={() => setTab(key)}
-                  className={`min-h-10 rounded-lg text-sm font-semibold transition-colors ${
+                  className={`min-h-10 rounded-lg text-base font-semibold transition-colors ${
                     tab === key ? 'bg-card text-navy shadow-sm' : 'text-navy-soft hover:text-navy'
                   }`}
                 >
@@ -103,12 +103,12 @@ function LeaderboardPage({ session, profile, onProfileChanged, onSignIn, onClose
               ))}
             </div>
 
-            {error && <p className="text-error mt-4 text-sm">{error}</p>}
-            {!rows && !error && <p className="text-navy-soft mt-4 text-center text-sm">Loading…</p>}
+            {error && <p className="text-error mt-4 text-base">{error}</p>}
+            {!rows && !error && <p className="text-navy-soft mt-4 text-center text-base">Loading…</p>}
             {rows && <BoardRows rows={rows} />}
 
             <div className="border-line mt-6 border-t pt-4">
-              <p className="text-navy-soft mb-3 text-center text-sm leading-relaxed">
+              <p className="text-navy-soft mb-3 text-center text-base leading-relaxed">
                 {tab === 'friends' && rows?.length <= 1
                   ? 'No friends here yet — invite some to compete.'
                   : 'Invite more friends to compete.'}{' '}
@@ -132,12 +132,12 @@ function MyRankCard({ myRank }) {
       {myRank ? (
         <>
           <p className="text-navy text-2xl font-extrabold">#{myRank.rank}</p>
-          <p className="text-navy-soft text-sm">
+          <p className="text-navy-soft text-base">
             of {myRank.total_players} players · {myRank.points} points · {myRank.solved} solved
           </p>
         </>
       ) : (
-        <p className="text-navy-soft text-sm">Solve a puzzle this week to get on the board.</p>
+        <p className="text-navy-soft text-base">Solve a puzzle this week to get on the board.</p>
       )}
     </div>
   )
@@ -146,7 +146,7 @@ function MyRankCard({ myRank }) {
 function BoardRows({ rows }) {
   if (rows.length === 0) {
     return (
-      <p className="text-navy-soft mt-4 text-center text-sm">
+      <p className="text-navy-soft mt-4 text-center text-base">
         Nobody's scored yet this week — solve a puzzle to take #1.
       </p>
     )
@@ -161,10 +161,10 @@ function BoardRows({ rows }) {
             row.is_me ? 'bg-gold/12 border-gold/40 border' : 'bg-ivory'
           }`}
         >
-          <span className="text-navy-soft w-9 shrink-0 text-sm font-bold">{row.rank ? `#${row.rank}` : '—'}</span>
+          <span className="text-navy-soft w-9 shrink-0 text-base font-bold">{row.rank ? `#${row.rank}` : '—'}</span>
           <span className="text-navy min-w-0 flex-1 truncate text-base font-semibold">
             {row.display_name}
-            {row.is_me && <span className="text-navy-soft ml-1 text-sm font-normal">(you)</span>}
+            {row.is_me && <span className="text-navy-soft ml-1 text-base font-normal">(you)</span>}
           </span>
           <span className="text-navy shrink-0 text-base font-bold">{row.points}</span>
           {row.is_me ? <span className="w-7 shrink-0" /> : <ReportButton userId={row.user_id} name={row.display_name} />}
@@ -194,7 +194,7 @@ function ReportButton({ userId, name }) {
       onClick={handleClick}
       disabled={state === 'sent'}
       aria-label={`Report the name ${name}`}
-      className={`shrink-0 rounded-lg text-xs font-medium transition-colors ${
+      className={`shrink-0 rounded-lg text-sm font-medium transition-colors ${
         state === 'idle' ? 'text-navy-soft/70 hover:text-error h-7 w-7' : 'text-error px-2 py-1'
       }`}
     >

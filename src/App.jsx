@@ -11,6 +11,8 @@ import ShareButton from './components/ShareButton'
 import LockedCategoryPanel from './components/LockedCategoryPanel'
 import LeaderboardPage from './components/LeaderboardPage'
 import Wordmark from './components/Wordmark'
+import LogoMark from './components/LogoMark'
+import FeedbackModal from './components/FeedbackModal'
 import { CATEGORIES, fetchTodaysPuzzles } from './lib/dailyPuzzle'
 import { isMatch } from './lib/fuzzyMatch'
 import { MAX_GUESSES } from './lib/hints'
@@ -58,6 +60,7 @@ function App() {
   const [notifModalOpen, setNotifModalOpen] = useState(false)
   const [statsOpen, setStatsOpen] = useState(false)
   const [leaderboardOpen, setLeaderboardOpen] = useState(false)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
   const session = useSession()
   const { profile, refresh: refreshProfile } = useProfile(session)
 
@@ -243,47 +246,30 @@ function App() {
   return (
     <div className="bg-ivory min-h-screen px-4 py-8">
       <div className="mx-auto flex max-w-md flex-col items-center">
-        <div className="flex w-full items-center justify-end gap-4">
-          {session === null && (
-            <button
-              type="button"
-              onClick={() => setAuthModalOpen(true)}
-              className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium underline decoration-dotted underline-offset-4 transition-colors"
-            >
-              Sign in
-            </button>
-          )}
-          {session && (
-            <button
-              type="button"
-              onClick={() => setAccountOpen(true)}
-              className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium transition-colors"
-            >
-              Account
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setLeaderboardOpen(true)}
-            className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium transition-colors"
-          >
-            Leaderboard
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatsOpen(true)}
-            className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium transition-colors"
-          >
-            Stats
-          </button>
-        </div>
+        {/* Logo centred between Account (left) and Leaderboard (right),
+            with Feedback and Stats at the foot of the page. Labelled,
+            full-size buttons rather than small links, since much of this
+            audience plays with larger text and less precise taps. */}
+        <header className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <div className="justify-self-start">
+            <NavButton icon="👤" onClick={() => (session ? setAccountOpen(true) : setAuthModalOpen(true))}>
+              {session ? 'Account' : 'Sign in'}
+            </NavButton>
+          </div>
+          <LogoMark className="h-28 w-28 sm:h-32 sm:w-32" />
+          <div className="justify-self-end">
+            <NavButton icon="🏆" onClick={() => setLeaderboardOpen(true)}>
+              Leaderboard
+            </NavButton>
+          </div>
+        </header>
 
-        <div className="mt-4 flex w-full flex-col items-center">
+        <div className="mt-1 flex w-full flex-col items-center">
           <Wordmark />
         </div>
 
         {unspentUnlocks(profile) > 0 && (
-          <p className="animate-fade-slide-in border-gold/40 bg-gold/10 text-navy mt-5 w-full rounded-xl border px-4 py-3 text-center text-sm leading-relaxed">
+          <p className="animate-fade-slide-in border-gold/40 bg-gold/10 text-navy mt-5 w-full rounded-xl border px-4 py-3 text-center text-base leading-relaxed">
             🎉 A friend joined through your link! Tap a locked category to unlock it forever.
           </p>
         )}
@@ -299,6 +285,7 @@ function App() {
         )}
         {notifModalOpen && <NotificationOptIn onClose={() => setNotifModalOpen(false)} />}
         {statsOpen && <StatsPage profile={profile} onClose={() => setStatsOpen(false)} />}
+        {feedbackOpen && <FeedbackModal session={session} onClose={() => setFeedbackOpen(false)} />}
         {leaderboardOpen && (
           <LeaderboardPage
             session={session}
@@ -364,7 +351,7 @@ function App() {
                   <button
                     type="button"
                     onClick={handleRevealAnswer}
-                    className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium underline decoration-dotted underline-offset-4 transition-colors"
+                    className="text-navy-soft hover:text-navy min-h-9 text-base font-medium underline decoration-dotted underline-offset-4 transition-colors"
                   >
                     Reveal Answer
                   </button>
@@ -375,6 +362,15 @@ function App() {
         ) : (
           <p className="text-navy-soft mt-8 text-base">No puzzle available for this category today.</p>
         )}
+
+        <footer className="mt-8 flex w-full items-center justify-between gap-2">
+          <NavButton icon="💬" onClick={() => setFeedbackOpen(true)}>
+            Feedback
+          </NavButton>
+          <NavButton icon="📊" onClick={() => setStatsOpen(true)}>
+            Stats
+          </NavButton>
+        </footer>
       </div>
     </div>
   )
@@ -387,7 +383,7 @@ function ResultPanel({ puzzle, game, profile, signedIn, onSignIn }) {
 
   return (
     <div className="animate-fade-slide-in border-line bg-ivory mt-8 w-full max-w-md rounded-2xl border p-6 text-center">
-      <p className="text-success flex items-center justify-center gap-1.5 text-sm font-bold tracking-wide uppercase">
+      <p className="text-success flex items-center justify-center gap-1.5 text-base font-bold tracking-wide uppercase">
         <span aria-hidden="true">✓</span> {statusLabel}
       </p>
 
@@ -399,19 +395,36 @@ function ResultPanel({ puzzle, game, profile, signedIn, onSignIn }) {
         <p className="text-navy-soft mt-3 text-base leading-relaxed">{puzzle.fun_fact}</p>
       )}
 
-      {meaning && <p className="text-navy-soft mt-2 text-sm leading-relaxed italic">Meaning: {meaning}</p>}
+      {meaning && <p className="text-navy-soft mt-2 text-base leading-relaxed italic">Meaning: {meaning}</p>}
 
       <div className="border-gold/30 bg-gold/8 mt-4 rounded-xl border px-4 py-3">
-        <p className="text-navy text-sm leading-relaxed">
+        <p className="text-navy text-base leading-relaxed">
           {won ? game.resultMessage.message : game.resultMessage.lead}
         </p>
-        <p className="text-navy mt-1 text-sm leading-relaxed font-semibold">
+        <p className="text-navy mt-1 text-base leading-relaxed font-semibold">
           {won ? game.resultMessage.closer : game.resultMessage.tail}
         </p>
       </div>
 
       <ShareButton puzzle={puzzle} game={game} profile={profile} signedIn={signedIn} onSignIn={onSignIn} />
     </div>
+  )
+}
+
+// Icon above label, so the header corners stay narrow enough to share a row
+// with the logo on the smallest iPhones.
+function NavButton({ icon, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="border-line bg-card text-navy hover:border-gold/60 hover:bg-gold/5 flex min-h-16 min-w-20 flex-col items-center justify-center gap-0.5 rounded-xl border px-2.5 py-2 text-base font-semibold whitespace-nowrap transition-colors"
+    >
+      <span aria-hidden="true" className="text-xl leading-none">
+        {icon}
+      </span>
+      {children}
+    </button>
   )
 }
 

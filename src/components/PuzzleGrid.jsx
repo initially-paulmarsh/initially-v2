@@ -11,11 +11,11 @@ function PuzzleGrid({ puzzle, attempts, status }) {
           title with more words just gets smaller tiles, on any screen,
           rather than risking a fixed px size that's wrong for some device
           or font-size setting. */}
-      <div className="flex justify-center gap-1 sm:gap-3">
+      <div className="flex justify-center gap-1.5 sm:gap-3">
         {initials.map((letter, i) => (
           <div
             key={i}
-            className="text-navy aspect-square min-w-0 shrink grow-0 basis-10 overflow-hidden rounded-md border-2 border-gold/50 bg-card text-sm font-bold shadow-sm sm:basis-16 sm:rounded-xl sm:text-3xl"
+            className="text-navy aspect-square min-w-0 shrink grow-0 basis-12 overflow-hidden rounded-lg border-2 border-gold/50 bg-card text-xl font-bold shadow-sm sm:basis-16 sm:rounded-xl sm:text-3xl"
           >
             <div className="flex h-full w-full items-center justify-center">{letter}</div>
           </div>
@@ -23,7 +23,7 @@ function PuzzleGrid({ puzzle, attempts, status }) {
       </div>
 
       <p
-        className={`mt-4 text-center text-base font-medium ${
+        className={`mt-4 text-center text-lg font-semibold ${
           status === 'won'
             ? 'text-success'
             : status === 'lost'

@@ -58,7 +58,7 @@ function CategoryStats({ category, stats }) {
       </h3>
 
       {stats.total_played === 0 ? (
-        <p className="text-navy-soft mt-2 text-sm">No games played yet.</p>
+        <p className="text-navy-soft mt-2 text-base">No games played yet.</p>
       ) : (
         <>
           <div className="mt-3 grid grid-cols-4 gap-2 text-center">
@@ -78,7 +78,7 @@ function Stat({ label, value }) {
   return (
     <div>
       <div className="text-navy text-xl font-extrabold">{value}</div>
-      <div className="text-navy-soft text-[10px] font-medium tracking-wide uppercase">{label}</div>
+      <div className="text-navy-soft text-xs font-medium tracking-wide uppercase">{label}</div>
     </div>
   )
 }
@@ -91,11 +91,11 @@ function GuessDistribution({ distribution }) {
     <div className="mt-3 space-y-1.5">
       {entries.map(([guess, count]) => (
         <div key={guess} className="flex items-center gap-2">
-          <span className="text-navy-soft w-3 shrink-0 text-right text-xs font-semibold">{guess}</span>
+          <span className="text-navy-soft w-3 shrink-0 text-right text-sm font-semibold">{guess}</span>
           <div className="bg-ivory h-5 flex-1 overflow-hidden rounded">
             {count > 0 && (
               <div
-                className="bg-success flex h-full min-w-6 items-center justify-end rounded px-1.5 text-[11px] font-semibold text-white"
+                className="bg-success flex h-full min-w-6 items-center justify-end rounded px-1.5 text-xs font-semibold text-white"
                 style={{ width: `${(count / maxCount) * 100}%` }}
               >
                 {count}

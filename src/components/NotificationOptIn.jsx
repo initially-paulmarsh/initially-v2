@@ -60,7 +60,7 @@ function NotificationOptIn({ onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="text-navy-soft hover:text-navy mt-3 min-h-9 w-full text-center text-sm font-medium transition-colors"
+              className="text-navy-soft hover:text-navy mt-3 min-h-9 w-full text-center text-base font-medium transition-colors"
             >
               No thanks
             </button>

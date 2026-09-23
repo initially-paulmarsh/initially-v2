@@ -54,7 +54,7 @@ function AccountModal({ email, profile, onProfileChanged, onClose }) {
         </p>
 
         <div className="border-line mt-4 rounded-xl border p-4">
-          <p className="text-navy-soft text-xs font-semibold tracking-wide uppercase">Leaderboard name</p>
+          <p className="text-navy-soft text-sm font-semibold tracking-wide uppercase">Leaderboard name</p>
           {editingName ? (
             <DisplayNameForm
               initialName={profile?.display_name ?? ''}
@@ -69,14 +69,14 @@ function AccountModal({ email, profile, onProfileChanged, onClose }) {
               <button
                 type="button"
                 onClick={() => setEditingName(true)}
-                className="text-navy-soft hover:text-navy min-h-9 text-sm font-medium underline decoration-dotted underline-offset-4"
+                className="text-navy-soft hover:text-navy min-h-9 text-base font-medium underline decoration-dotted underline-offset-4"
               >
                 {profile?.display_name ? 'Change' : 'Choose'}
               </button>
             </div>
           )}
           {profile?.invite_code && (
-            <p className="text-navy-soft mt-3 text-sm">
+            <p className="text-navy-soft mt-3 text-base">
               Your invite code: <strong className="text-navy tracking-widest">{profile.invite_code}</strong>
             </p>
           )}
@@ -92,16 +92,16 @@ function AccountModal({ email, profile, onProfileChanged, onClose }) {
 
         {confirming ? (
           <div className="border-line mt-4 rounded-xl border-2 p-4">
-            <p className="text-navy text-sm leading-relaxed">
+            <p className="text-navy text-base leading-relaxed">
               This permanently deletes your account, streaks and stats. It can't be undone.
             </p>
-            {error && <p className="text-error mt-2 text-sm">{error}</p>}
+            {error && <p className="text-error mt-2 text-base">{error}</p>}
             <div className="mt-3 flex gap-3">
               <button
                 type="button"
                 onClick={() => setConfirming(false)}
                 disabled={deleting}
-                className="text-navy-soft hover:text-navy min-h-10 flex-1 rounded-xl text-sm font-medium transition-colors disabled:opacity-40"
+                className="text-navy-soft hover:text-navy min-h-10 flex-1 rounded-xl text-base font-medium transition-colors disabled:opacity-40"
               >
                 Cancel
               </button>
@@ -109,7 +109,7 @@ function AccountModal({ email, profile, onProfileChanged, onClose }) {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="bg-error min-h-10 flex-1 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+                className="bg-error min-h-10 flex-1 rounded-xl text-base font-semibold text-white transition-all disabled:opacity-40"
               >
                 {deleting ? 'Deleting…' : 'Delete forever'}
               </button>
@@ -119,7 +119,7 @@ function AccountModal({ email, profile, onProfileChanged, onClose }) {
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="text-error mt-3 min-h-9 w-full text-center text-sm font-medium"
+            className="text-error mt-3 min-h-9 w-full text-center text-base font-medium"
           >
             Delete account
           </button>

@@ -41,7 +41,7 @@ function LockedCategoryPanel({ category, session, profile, onSignIn, onUnlocked 
           <button
             type="button"
             onClick={onSignIn}
-            className="bg-gold text-navy mt-4 min-h-11 rounded-xl px-6 py-2.5 text-sm font-semibold shadow-sm transition-all hover:shadow-md hover:brightness-105"
+            className="bg-gold text-navy mt-4 min-h-11 rounded-xl px-6 py-2.5 text-base font-semibold shadow-sm transition-all hover:shadow-md hover:brightness-105"
           >
             Sign in to get your invite link
           </button>
@@ -51,12 +51,12 @@ function LockedCategoryPanel({ category, session, profile, onSignIn, onUnlocked 
           <p className="text-navy-soft mt-1 text-base leading-relaxed">
             A friend joined through your link — you've earned an unlock. Use it on {label}?
           </p>
-          {error && <p className="text-error mt-2 text-sm">{error}</p>}
+          {error && <p className="text-error mt-2 text-base">{error}</p>}
           <button
             type="button"
             onClick={handleUnlock}
             disabled={unlocking}
-            className="bg-gold text-navy mt-4 min-h-11 rounded-xl px-6 py-2.5 text-sm font-semibold shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-105 disabled:opacity-40"
+            className="bg-gold text-navy mt-4 min-h-11 rounded-xl px-6 py-2.5 text-base font-semibold shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-105 disabled:opacity-40"
           >
             {unlocking ? 'Unlocking…' : `Unlock ${label} forever`}
           </button>
@@ -87,7 +87,7 @@ function InviteProgress({ friends }) {
           <span key={i} className={`h-2.5 w-10 rounded-full ${i < friends ? 'bg-gold' : 'bg-line'}`} />
         ))}
       </div>
-      <p className="text-navy-soft mt-2 text-sm">
+      <p className="text-navy-soft mt-2 text-base">
         {friends} of {FRIENDS_FOR_ALL_CATEGORIES} friends joined
       </p>
     </div>

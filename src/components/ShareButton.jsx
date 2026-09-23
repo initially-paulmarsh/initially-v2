@@ -21,11 +21,11 @@ function ShareButton({ puzzle, game, profile, signedIn, onSignIn }) {
     <div className="mt-5 w-full">
       <ShareActions getText={getText} whatsAppLabel="Share result on WhatsApp" />
       {signedIn ? (
-        <p className="text-navy-soft mt-2 text-xs leading-relaxed">
+        <p className="text-navy-soft mt-2 text-sm leading-relaxed">
           Every friend who joins through your link unlocks a category for you — forever.
         </p>
       ) : (
-        <p className="text-navy-soft mt-2 text-xs leading-relaxed">
+        <p className="text-navy-soft mt-2 text-sm leading-relaxed">
           <button
             type="button"
             onClick={onSignIn}

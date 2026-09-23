@@ -84,7 +84,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
           lockedWords[i] ? (
             <div
               key={i}
-              className="animate-pop-in border-success/40 bg-success-bg text-success flex h-11 items-center justify-center rounded-lg border-2 px-2 text-sm font-semibold shadow-sm sm:h-14 sm:rounded-xl sm:px-4 sm:text-lg"
+              className="animate-pop-in border-success/40 bg-success-bg text-success flex h-12 items-center justify-center rounded-lg border-2 px-3 text-lg font-semibold shadow-sm sm:h-14 sm:rounded-xl sm:px-4 sm:text-lg"
             >
               {lockedWords[i]}
             </div>
@@ -99,7 +99,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
               disabled={disabled}
               placeholder={`Word ${i + 1}`}
               autoComplete="off"
-              className="focus:border-gold text-navy border-line bg-card placeholder:text-navy-soft/60 h-11 w-16 rounded-lg border-2 px-1.5 text-center text-sm transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none disabled:opacity-50 sm:h-14 sm:w-28 sm:rounded-xl sm:px-2 sm:text-lg"
+              className="focus:border-gold text-navy border-line bg-card placeholder:text-navy-soft/60 h-12 w-24 rounded-lg border-2 px-1.5 text-center text-lg transition-colors focus:ring-2 focus:ring-gold/30 focus:outline-none disabled:opacity-50 sm:h-14 sm:w-28 sm:rounded-xl sm:px-2 sm:text-lg"
             />
           ),
         )}
@@ -107,7 +107,7 @@ function GuessInput({ wordCount, lockedWords, onSubmit, disabled }) {
       <button
         type="submit"
         disabled={!canSubmit}
-        className="bg-gold text-navy min-h-11 rounded-xl px-5 py-2 text-sm font-semibold shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-105 disabled:opacity-40 sm:px-8 sm:py-3 sm:text-lg"
+        className="bg-gold text-navy min-h-12 rounded-xl px-8 py-2 text-lg font-semibold shadow-sm transition-all hover:enabled:shadow-md hover:enabled:brightness-105 disabled:opacity-40 sm:px-8 sm:py-3 sm:text-lg"
       >
         Guess
       </button>
