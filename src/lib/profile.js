@@ -8,6 +8,8 @@ import { supabase } from './supabaseClient'
 export const SITE_URL = 'https://www.initially-app.com'
 
 const PENDING_INVITE_KEY = 'initially_pending_invite'
+const PROFILE_REFRESH_MS = 30_000
+let pendingInvite
 
 // Tracks the signed-in player's profile: display name, invite code, how many
 // friends have joined through it, and which categories they've unlocked.
@@ -40,9 +42,16 @@ export function useProfile(session) {
     function onVisible() {
       if (document.visibilityState === 'visible') refresh()
     }
+    if (!userId) return
     document.addEventListener('visibilitychange', onVisible)
-    return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [refresh])
+    window.addEventListener('focus', onVisible)
+    const interval = window.setInterval(onVisible, PROFILE_REFRESH_MS)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
+      window.clearInterval(interval)
+    }
+  }, [refresh, userId])
 
   return { profile, refresh }
 }
@@ -58,16 +67,13 @@ export function captureInviteFromUrl() {
   const url = new URL(window.location.href)
   const code = url.searchParams.get('invite')
   if (!code) return
-  try {
-    localStorage.setItem(PENDING_INVITE_KEY, code.trim().toUpperCase())
-  } catch {
-    // Private mode etc. -- the invite just won't be credited.
-  }
+  setPendingInvite(code)
   url.searchParams.delete('invite')
   window.history.replaceState(null, '', url.pathname + url.search + url.hash)
 }
 
 export function getPendingInvite() {
+  if (pendingInvite !== undefined) return pendingInvite
   try {
     return localStorage.getItem(PENDING_INVITE_KEY)
   } catch {
@@ -76,28 +82,29 @@ export function getPendingInvite() {
 }
 
 export function setPendingInvite(code) {
+  pendingInvite = code?.trim().toUpperCase() || null
   try {
-    if (code) localStorage.setItem(PENDING_INVITE_KEY, code.trim().toUpperCase())
+    if (pendingInvite) localStorage.setItem(PENDING_INVITE_KEY, pendingInvite)
     else localStorage.removeItem(PENDING_INVITE_KEY)
   } catch {
     // ignore
   }
 }
 
-// Credits a waiting invite to whoever sent it. The server only counts it
-// for a brand-new account, so it's safe to try on every sign-in; either way
-// the pending code is spent. Resolves to the inviter's name ('' if they
-// haven't picked one) when it counted, null otherwise.
-export async function claimPendingInvite() {
-  const code = getPendingInvite()
-  if (!code) return null
-  setPendingInvite(null)
-  const { data, error } = await supabase.rpc('claim_invite', { code })
-  if (error) {
+// Signup metadata survives opening the email on another browser or device.
+// The RPC checks account age and prevents duplicate or self-referrals.
+export async function claimPendingInvite(user) {
+  const localCode = getPendingInvite()
+  const metadataCode = user.user_metadata?.initially_invite_code
+  const code = typeof metadataCode === 'string' ? metadataCode : localCode
+  if (!code) return
+  try {
+    const { error } = await supabase.rpc('claim_invite', { code })
+    if (error) throw error
+    if (getPendingInvite() === localCode) setPendingInvite(null)
+  } catch (error) {
     console.error('claim_invite failed', error)
-    return null
   }
-  return data
 }
 
 export function unlockCategory(category) {
