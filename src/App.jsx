@@ -101,10 +101,19 @@ function App() {
     if (session) {
       setAuthModalOpen(false)
       syncStatsOnSignIn(session.user.id)
-      // Credits whoever invited this (brand-new) player; a no-op for
-      // returning players. The inviter sees it on their next profile load.
-      claimPendingInvite().then(refreshProfile)
     }
+  }, [session])
+
+  useEffect(() => {
+    if (!session) return
+
+    function claimInvite() {
+      claimPendingInvite(session.user).then(refreshProfile)
+    }
+
+    claimInvite()
+    window.addEventListener('online', claimInvite)
+    return () => window.removeEventListener('online', claimInvite)
   }, [session, refreshProfile])
 
   // Only relevant inside the native iOS shell — offer a daily reminder
@@ -244,7 +253,7 @@ function App() {
   )
 
   return (
-    <div className="bg-ivory min-h-screen px-4 py-8">
+    <div className="bg-ivory min-h-screen px-4 pt-3 pb-6 sm:pt-6">
       <div className="mx-auto flex max-w-md flex-col items-center">
         {/* Logo centred between Account (left) and Leaderboard (right),
             with Feedback and Stats at the foot of the page. Labelled,
@@ -256,7 +265,7 @@ function App() {
               {session ? 'Account' : 'Sign in'}
             </NavButton>
           </div>
-          <LogoMark className="h-28 w-28 sm:h-32 sm:w-32" />
+          <LogoMark className="h-20 w-20 sm:h-28 sm:w-28" />
           <div className="justify-self-end">
             <NavButton icon="🏆" onClick={() => setLeaderboardOpen(true)}>
               Leaderboard
@@ -269,8 +278,8 @@ function App() {
         </div>
 
         {unspentUnlocks(profile) > 0 && (
-          <p className="animate-fade-slide-in border-gold/40 bg-gold/10 text-navy mt-5 w-full rounded-xl border px-4 py-3 text-center text-base leading-relaxed">
-            🎉 A friend joined through your link! Tap a locked category to unlock it forever.
+          <p role="status" className="animate-fade-slide-in border-gold/40 bg-gold/10 text-navy mt-5 w-full rounded-xl border px-4 py-3 text-center text-base leading-relaxed">
+            You’ve earned a category unlock. Choose a locked category to play it permanently.
           </p>
         )}
 
@@ -299,7 +308,7 @@ function App() {
           />
         )}
 
-        <div className="mt-7 w-full">
+        <div className="mt-5 w-full">
           <CategoryTabs
             categories={CATEGORIES.filter((c) => puzzles[c])}
             active={activeCategory}
@@ -312,6 +321,7 @@ function App() {
         {activePuzzle && activeGame ? (
           !canPlay ? (
             <LockedCategoryPanel
+              key={activeCategory}
               category={activeCategory}
               session={session}
               profile={profile}
@@ -319,7 +329,7 @@ function App() {
               onUnlocked={refreshProfile}
             />
           ) : (
-            <div className="border-line bg-card mt-8 w-full rounded-2xl border p-4 shadow-sm sm:p-8">
+            <div className="border-line bg-card mt-4 w-full rounded-2xl border p-4 shadow-sm sm:p-7">
               <PuzzleGrid puzzle={activePuzzle} attempts={activeGame.attempts} status={activeGame.status} />
 
               {activeGame.status === 'playing' ? (
