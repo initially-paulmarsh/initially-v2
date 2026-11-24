@@ -22,7 +22,8 @@ function AuthModal({ onClose }) {
     setError(null)
     // Held until the session appears, then claimed by App -- see
     // claimPendingInvite.
-    setPendingInvite(inviteCode.trim() || null)
+    const pendingInvite = inviteCode.trim().toUpperCase() || null
+    setPendingInvite(pendingInvite)
     // App Review's account only -- see REVIEW_EMAIL. The session arrives
     // through onAuthStateChange and App closes this modal, as with a code.
     if (reviewer) {
@@ -33,7 +34,7 @@ function AuthModal({ onClose }) {
       }
       return
     }
-    const { error } = await signInWithEmail(email.trim())
+    const { error } = await signInWithEmail(email.trim(), pendingInvite)
     if (error) {
       setError(error.message)
       setStatus('error')

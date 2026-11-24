@@ -28,14 +28,14 @@ function LockedCategoryPanel({ category, session, profile, onSignIn, onUnlocked 
   }
 
   return (
-    <div className="animate-fade-slide-in border-line bg-card mt-8 w-full max-w-md rounded-2xl border px-5 py-8 text-center">
+    <div className="animate-fade-slide-in border-line bg-card mt-4 w-full max-w-md rounded-2xl border px-5 py-8 text-center">
       <LockIcon className="text-navy-soft mx-auto h-8 w-8" />
-      <p className="text-navy mt-3 text-lg font-semibold">Today's {label} puzzle is locked</p>
+      <p className="text-navy mt-3 text-lg font-semibold">Unlock {label}</p>
 
       {!session ? (
         <>
           <p className="text-navy-soft mt-1 text-base leading-relaxed">
-            Invite friends to unlock it. Every friend who joins unlocks a category for you — forever.{' '}
+            Invite friends to unlock it. Each friend who signs up through your link earns you one permanent category unlock.{' '}
             {FRIENDS_FOR_ALL_CATEGORIES} friends unlocks them all.
           </p>
           <button
@@ -46,10 +46,12 @@ function LockedCategoryPanel({ category, session, profile, onSignIn, onUnlocked 
             Sign in to get your invite link
           </button>
         </>
+      ) : !profile ? (
+        <p role="status" className="text-navy-soft mt-2 text-base">Loading your invite progress…</p>
       ) : unspentUnlocks(profile) > 0 ? (
         <>
           <p className="text-navy-soft mt-1 text-base leading-relaxed">
-            A friend joined through your link — you've earned an unlock. Use it on {label}?
+            A friend joined through your link. Use your earned unlock to play {label} permanently.
           </p>
           {error && <p className="text-error mt-2 text-base">{error}</p>}
           <button
@@ -64,7 +66,7 @@ function LockedCategoryPanel({ category, session, profile, onSignIn, onUnlocked 
       ) : (
         <>
           <p className="text-navy-soft mt-1 text-base leading-relaxed">
-            Every friend who joins through your link unlocks a category for you — forever.{' '}
+            Each friend who signs up through your link earns you one permanent category unlock.{' '}
             {FRIENDS_FOR_ALL_CATEGORIES} friends unlocks them all.
           </p>
           <InviteProgress friends={friends} />
