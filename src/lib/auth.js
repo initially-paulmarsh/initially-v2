@@ -17,10 +17,13 @@ const REDIRECT_URL = window.location.origin
 // code is what the app asks for, because inside the iOS shell the link
 // opens Safari and signs in the website, not the app. The link still works
 // for anyone on the web who taps it instead.
-export function signInWithEmail(email) {
+export function signInWithEmail(email, inviteCode) {
   return supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: REDIRECT_URL },
+    options: {
+      emailRedirectTo: REDIRECT_URL,
+      ...(inviteCode ? { data: { initially_invite_code: inviteCode } } : {}),
+    },
   })
 }
 
